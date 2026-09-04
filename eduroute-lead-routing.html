@@ -442,6 +442,30 @@ input[type=range]{flex:1; accent-color:var(--accent);}
   border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); border-radius:9px;
   padding:9px 10px; font-size:13px; font-family:var(--font-body);
 }
+.manual-panel{padding:4px 20px 20px;}
+.manual-form-grid{display:grid; grid-template-columns:1fr 1fr; gap:13px;}
+.condition-stack{display:flex; flex-direction:column; gap:8px;}
+.condition-row{display:grid; grid-template-columns:1.2fr .62fr 1.2fr 28px; gap:7px; align-items:center;}
+.condition-row select{min-width:0; width:100%;}
+.condition-row select.condition-value{width:100%;}
+.condition-remove{width:28px; height:30px; padding:0; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;}
+.condition-remove:hover{background:var(--critical-soft); color:var(--critical); border-color:var(--critical-soft);}
+.condition-join{font-size:10px; color:var(--ink-faint); font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding-left:4px;}
+.manual-add-condition{margin-top:8px; padding:5px 9px; font-size:11.5px;}
+.manual-priority{display:flex; align-items:center; gap:10px;}
+.manual-priority input[type=range]{min-width:0;}
+.manual-priority-value{font-family:var(--font-mono); font-size:12px; font-weight:700; white-space:nowrap;}
+.manual-actions{display:flex; gap:8px; margin-top:2px;}
+.manual-actions .btn{flex:1; justify-content:center;}
+.assign-picker{position:relative;}
+.assign-picker summary{list-style:none; cursor:pointer; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:9px 10px; font-size:13px; min-height:38px;}
+.assign-picker summary::-webkit-details-marker{display:none;}
+.assign-picker summary::after{content:'⌄'; float:right; color:var(--ink-faint);}
+.assign-options{position:absolute; z-index:10; top:calc(100% + 5px); left:0; right:0; max-height:220px; overflow:auto; padding:7px; background:var(--surface); border:1px solid var(--border); border-radius:9px; box-shadow:var(--shadow-md);}
+.assign-option{display:flex; align-items:center; gap:8px; padding:7px 5px; border-radius:6px; font-size:12px; cursor:pointer;}
+.assign-option:hover{background:var(--surface-sunken);}
+.assign-option input{accent-color:var(--accent);}
+@media (max-width:700px){.manual-form-grid{grid-template-columns:1fr;}.condition-row{grid-template-columns:1fr 1fr 1fr 28px;}.manual-actions{flex-direction:column;}}
 .seg{display:flex; border:1px solid var(--border-strong); border-radius:9px; overflow:hidden;}
 .seg button{flex:1; padding:8px 6px; font-size:12.2px; font-weight:600; background:var(--surface-2); border:none; color:var(--ink-soft); cursor:pointer;}
 .seg button.on{background:var(--accent); color:var(--accent-ink);}
@@ -737,7 +761,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         <div class="ai-grid" id="builderGrid">
           <div class="card">
             <div class="card-head">
-              <div><div class="card-title">Describe your rule</div><div class="card-sub" id="builderModeSub">Try one of the examples or write your own</div></div>
+              <div><div class="card-title" id="builderFormTitle">Describe your rule</div><div class="card-sub" id="builderModeSub">Try one of the examples or write your own</div></div>
               <div class="seg" id="builderMode" style="width:190px; flex:none;"><button class="on" data-mode="ai">AI describe</button><button data-mode="manual">Add manually</button></div>
             </div>
             <div id="builderAiPanel">
@@ -755,46 +779,45 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                 <button class="btn btn-primary" style="align-self:flex-end;"><svg class="icon"><use href="#ic-spark"/></svg>Generate</button>
               </div>
             </div>
-            <div class="form-grid" id="builderManualPanel" style="display:none;">
-              <div class="field"><label>Rule name</label><input type="text" id="manRuleName" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
-              <div class="field"><label>Priority</label><input type="number" id="manPriority" min="1" max="99" value="1"></div>
-              <div class="field"><label>Lead source</label>
-                <select id="manSource"><option value="">Any source</option><option>Facebook Ads</option><option>Google Ads</option><option>Website Organic</option><option>Referral</option><option>Education Fair</option><option>Instagram</option><option>Walk-in</option><option>LinkedIn</option></select>
+            <div class="manual-panel" id="builderManualPanel" style="display:none;">
+              <div class="manual-form-grid">
+                <div class="field full"><label>Rule name</label><input type="text" id="manRuleName" value="Walk-in Priority Routing" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
+                <div class="field full"><label>Conditions</label>
+                  <div class="condition-stack" id="manualConditions">
+                    <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option selected>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option selected>Walk-in</option><option>Facebook Ads</option><option>Google Ads</option><option>Website Organic</option><option>Referral</option><option>Education Fair</option><option>Instagram</option><option>LinkedIn</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                    <span class="condition-join">And</span>
+                    <div class="condition-row"><select class="condition-field"><option value="budget" selected>Budget tier</option><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option selected>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option selected>Premium</option><option>Standard</option><option>High</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                  </div>
+                  <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
+                </div>
+                <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
+                <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Direct assign</option><option>Proximity</option><option>Language routing</option><option>Global round robin</option></select></div>
+                <div class="field"><label>Fallback</label><select id="manFallback"><option value="false">Continue to next rule</option><option value="true">Stop here (catch-all)</option></select></div>
+                <div class="field"><label>Active hours</label><div class="seg" id="manualHours"><button class="on" type="button" data-v="all">All day</button><button type="button" data-v="business">Business hours only</button></div></div>
+                <div class="field full"><label>Priority <span class="manual-priority-value" id="manualPriorityValue">8 of 8</span></label><div class="manual-priority"><input type="range" id="manPriority" min="1" max="8" value="8"><span class="manual-priority-value">8</span></div></div>
               </div>
-              <div class="field"><label>Program</label>
-                <select id="manProgram"><option value="">Any program</option><option>MBA</option><option>Executive MBA</option><option>B.Tech CSE</option><option>B.Tech Mechanical</option><option>BBA</option><option>MCA</option><option>Diploma in Design</option><option>PhD Programs</option></select>
-              </div>
-              <div class="field"><label>Assign to</label><input type="text" id="manAssignTo" placeholder="e.g. Priya Sharma, Neha Kulkarni"></div>
-              <div class="field"><label>Distribution</label>
-                <select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Direct assign</option><option>Proximity</option><option>Language routing</option><option>Global round robin</option></select>
-              </div>
-              <div class="field full"><label>Fallback</label>
-                <select id="manFallback"><option value="false">Continue to next rule</option><option value="true">Stop here (catch-all)</option></select>
-              </div>
-              <div class="field full" style="margin-top:4px;">
-                <button class="btn btn-primary" style="width:100%; justify-content:center;" type="button" id="manualSaveBtn"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button>
-              </div>
+              <div class="manual-actions"><button class="btn" type="button" onclick="goTo('simulator')"><svg class="icon"><use href="#ic-play"/></svg>Test in simulator</button><button class="btn btn-primary" type="button" id="manualSaveBtn"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button></div>
             </div>
           </div>
 
           <div class="card" id="builderDraftCard">
             <div class="card-head">
-              <div><div class="card-title">Generated rule draft</div><div class="card-sub">Parsed from your description — edit before saving</div></div>
+              <div><div class="card-title" id="draftTitle">Generated rule draft</div><div class="card-sub" id="draftSub">Parsed from your description — edit before saving</div></div>
               <span class="chip chip-info"><span class="dot"></span>Draft</span>
             </div>
             <div class="rule-preview">
-              <div class="kv-row"><span class="kv-label">Rule name</span><span class="kv-value">Instagram · MBA &amp; BBA Split</span></div>
+              <div class="kv-row"><span class="kv-label">Rule name</span><span class="kv-value" id="manualPreviewName">Instagram · MBA &amp; BBA Split</span></div>
               <div class="kv-row"><span class="kv-label">Conditions</span><span class="kv-value">
-                <span class="code-pill"><span class="kw">IF</span> source <b>=</b> Instagram <span class="kw">AND</span> program <b>IN</b> (MBA, BBA)</span>
+                <span class="code-pill" id="manualPreviewConditions"><span class="kw">IF</span> source <b>=</b> Instagram <span class="kw">AND</span> program <b>IN</b> (MBA, BBA)</span>
               </span></div>
-              <div class="kv-row"><span class="kv-label">Time window</span><span class="kv-value">09:00 – 19:00 IST</span></div>
-              <div class="kv-row"><span class="kv-label">Assign to</span><span class="kv-value">Priya Sharma, Neha Kulkarni</span></div>
-              <div class="kv-row"><span class="kv-label">Distribution</span><span class="kv-value">Round robin (even split)</span></div>
+              <div class="kv-row"><span class="kv-label">Active hours</span><span class="kv-value" id="manualPreviewHours">All day</span></div>
+              <div class="kv-row"><span class="kv-label">Assign to</span><span class="kv-value" id="manualPreviewAssign">Priya Sharma, Neha Kulkarni</span></div>
+              <div class="kv-row"><span class="kv-label">Distribution</span><span class="kv-value" id="manualPreviewDist">Round robin</span></div>
               <div class="kv-row" style="display:block;">
-                <div style="display:flex; justify-content:space-between;"><span class="kv-label">Priority</span><span class="kv-value tabular">2 of 9</span></div>
+                <div style="display:flex; justify-content:space-between;"><span class="kv-label">Priority</span><span class="kv-value tabular" id="manualPreviewPriority">2 of 8</span></div>
                 <div class="slider-row"><input type="range" min="1" max="9" value="2"></div>
               </div>
-              <div class="kv-row"><span class="kv-label">Fallback</span><span class="kv-value">Continue to next rule</span></div>
+              <div class="kv-row"><span class="kv-label">Fallback</span><span class="kv-value" id="manualPreviewFallback">Continue to next rule</span></div>
               <div style="display:flex; gap:10px; margin-top:16px;">
                 <button class="btn" style="flex:1;" onclick="goTo('simulator')"><svg class="icon"><use href="#ic-play"/></svg>Test in simulator</button>
                 <button class="btn btn-primary" style="flex:1;"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button>
@@ -1194,28 +1217,96 @@ document.getElementById('builderMode').addEventListener('click', e=>{
   btn.classList.add('on');
   const isManual = btn.dataset.mode === 'manual';
   document.getElementById('builderAiPanel').style.display = isManual ? 'none' : '';
-  document.getElementById('builderManualPanel').style.display = isManual ? 'grid' : 'none';
-  document.getElementById('builderDraftCard').style.display = isManual ? 'none' : '';
-  document.getElementById('builderGrid').style.gridTemplateColumns = isManual ? '1fr' : '1fr 1fr';
+  document.getElementById('builderManualPanel').style.display = isManual ? 'block' : 'none';
+  document.getElementById('builderDraftCard').style.display = '';
+  document.getElementById('builderGrid').style.gridTemplateColumns = '1fr 1fr';
+  document.getElementById('builderFormTitle').textContent = isManual ? 'Rule details' : 'Describe your rule';
+  document.getElementById('draftTitle').textContent = isManual ? 'Rule preview' : 'Generated rule draft';
+  document.getElementById('draftSub').textContent = isManual ? 'Updates live as you fill in the form' : 'Parsed from your description — edit before saving';
   document.getElementById('builderModeSub').textContent = isManual
     ? 'Fill in the fields to add a rule directly — no AI needed'
     : 'Try one of the examples or write your own';
 });
 
+function manualConditionRows(){ return [...document.querySelectorAll('#manualConditions .condition-row')]; }
+const manualConditionValues = {
+  source: ['Facebook Ads','Google Ads','Website Organic','Referral','Education Fair','Instagram','Walk-in','LinkedIn'],
+  program: ['MBA','Executive MBA','B.Tech CSE','B.Tech Mechanical','BBA','MCA','Diploma in Design','PhD Programs'],
+  budget: ['Standard','Premium','High'],
+  city: ['Pune','Mumbai','Bengaluru','Delhi NCR','Chennai','Hyderabad','Other'],
+  language: ['English','Hindi','Marathi','Tamil','Other']
+};
+function refreshConditionValues(row){
+  const valueSelect = row.querySelector('.condition-value');
+  const values = manualConditionValues[row.querySelector('.condition-field').value] || [];
+  valueSelect.innerHTML = values.map(value=>`<option>${value}</option>`).join('');
+}
+manualConditionRows().forEach(refreshConditionValues);
+document.getElementById('manualConditions').addEventListener('change', e=>{
+  if(e.target.classList.contains('condition-field')) refreshConditionValues(e.target.closest('.condition-row'));
+  updateManualPreview();
+});
+function updateManualPreview(){
+  const conditions = manualConditionRows().map((row, index)=>{
+    const field = row.querySelector('.condition-field').selectedOptions[0].textContent;
+    const op = row.querySelector('.condition-op').value;
+    const value = row.querySelector('.condition-value').value;
+    return `${index ? '<span class="kw">AND</span> ' : '<span class="kw">IF</span> '}${field} <b>${op}</b> ${value}`;
+  }).join(' ');
+  const priority = document.getElementById('manPriority').value;
+  document.getElementById('manualPreviewName').textContent = document.getElementById('manRuleName').value || 'Untitled rule';
+  document.getElementById('manualPreviewConditions').innerHTML = conditions || '<span class="kw">IF</span> no conditions';
+  const assignees = [...document.querySelectorAll('#manAssignTo input:checked')].map(input=>input.value);
+  document.getElementById('assignSummary').textContent = assignees.length ? assignees.join(', ') : 'Select counsellors';
+  document.getElementById('manualPreviewAssign').textContent = assignees.length ? assignees.join(', ') : 'Unassigned';
+  document.getElementById('manualPreviewDist').textContent = document.getElementById('manDist').value;
+  document.getElementById('manualPreviewHours').textContent = document.querySelector('#manualHours button.on').textContent;
+  document.getElementById('manualPreviewPriority').textContent = `${priority} of 8`;
+  document.getElementById('manualPreviewFallback').textContent = document.getElementById('manFallback').selectedOptions[0].textContent;
+  document.getElementById('manualPriorityValue').textContent = `${priority} of 8`;
+  document.querySelector('.manual-priority .manual-priority-value').textContent = priority;
+}
+document.getElementById('builderManualPanel').addEventListener('input', updateManualPreview);
+document.getElementById('builderManualPanel').addEventListener('change', updateManualPreview);
+document.getElementById('manAssignTo').addEventListener('change', updateManualPreview);
+document.getElementById('manualConditions').addEventListener('click', e=>{
+  const remove = e.target.closest('.condition-remove');
+  if(!remove || manualConditionRows().length <= 1) return;
+  const row = remove.closest('.condition-row');
+  const previous = row.previousElementSibling;
+  if(previous && previous.classList.contains('condition-join')) previous.remove();
+  row.remove();
+  updateManualPreview();
+});
+document.getElementById('addConditionBtn').addEventListener('click', ()=>{
+  const join = document.createElement('span'); join.className = 'condition-join'; join.textContent = 'And';
+  const row = document.createElement('div'); row.className = 'condition-row';
+  row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option>Walk-in</option><option>Facebook Ads</option><option>Google Ads</option><option>Instagram</option><option>Premium</option><option>MBA</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+  document.getElementById('manualConditions').append(join, row);
+  updateManualPreview();
+});
+document.getElementById('manualHours').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#manualHours button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  updateManualPreview();
+});
+updateManualPreview();
+
 document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const nameEl = document.getElementById('manRuleName');
   const name = (nameEl.value||'').trim();
   if(!name){ nameEl.focus(); return; }
-  const src = document.getElementById('manSource').value;
-  const prog = document.getElementById('manProgram').value;
-  const assignTo = (document.getElementById('manAssignTo').value||'Unassigned').trim();
+  const assignTo = [...document.querySelectorAll('#manAssignTo input:checked')].map(input=>input.value).join(', ') || 'Unassigned';
   const dist = document.getElementById('manDist').value;
   const isCatch = document.getElementById('manFallback').value === 'true';
   const priority = Math.max(1, parseInt(document.getElementById('manPriority').value,10) || (rules.length+1));
 
-  const cond = [];
-  if(src) cond.push(["source","=",src]);
-  if(prog) cond.push(["course","=",prog]);
+  const cond = manualConditionRows().map(row=>[
+    row.querySelector('.condition-field').value,
+    row.querySelector('.condition-op').value,
+    row.querySelector('.condition-value').value
+  ]);
   if(!cond.length) cond.push(["else","=","no match above"]);
 
   const idx = Math.min(priority-1, rules.length);
@@ -1227,9 +1318,9 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const badge = document.querySelector('.nav-badge');
   if(badge) badge.textContent = rules.length;
 
-  nameEl.value=''; document.getElementById('manAssignTo').value='';
-  document.getElementById('manSource').value=''; document.getElementById('manProgram').value='';
+  nameEl.value='';
   document.getElementById('manPriority').value='1';
+  updateManualPreview();
 
   goTo('rules');
 });
