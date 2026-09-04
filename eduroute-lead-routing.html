@@ -562,11 +562,9 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         <div class="nav-label">Operations</div>
         <button class="nav-item" data-view="counsellors"><svg class="icon"><use href="#ic-users"/></svg>Counsellors &amp; Capacity</button>
         <button class="nav-item" data-view="history"><svg class="icon"><use href="#ic-history"/></svg>Assignment History</button>
-        <button class="nav-item" data-view="analytics"><svg class="icon"><use href="#ic-bars"/></svg>Analytics</button>
       </div>
       <div class="nav-group">
         <div class="nav-label">System</div>
-        <button class="nav-item" data-view="integrations"><svg class="icon"><use href="#ic-plug"/></svg>Integrations</button>
         <button class="nav-item" data-view="settings"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
       </div>
     </nav>
@@ -707,25 +705,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
               <div id="dashAlerts"></div>
             </div>
 
-            <div class="card">
-              <div class="card-head"><div class="card-title">Lead source mix</div></div>
-              <div class="chart-box" style="height:180px; padding:0 16px 6px;"><canvas id="chartSourceMini"></canvas></div>
-            </div>
           </div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <div class="card-title">Lead volume &amp; assignment trend</div>
-              <div class="card-sub">Last 14 days, all campuses</div>
-            </div>
-            <div class="legend" style="padding:0;">
-              <span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Leads received</span>
-              <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Leads assigned</span>
-            </div>
-          </div>
-          <div class="chart-box tall" style="padding:0 20px 20px;"><canvas id="chartTrend"></canvas></div>
         </div>
       </section>
 
@@ -751,28 +731,53 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         <div class="view-header">
           <div>
             <h1 class="view-title">AI Rule Builder</h1>
-            <p class="view-sub">Describe how leads should be routed in plain English — EduRoute drafts the logic</p>
+            <p class="view-sub">Describe how leads should be routed in plain English, or add a rule manually</p>
           </div>
         </div>
-        <div class="ai-grid">
+        <div class="ai-grid" id="builderGrid">
           <div class="card">
-            <div class="card-head"><div><div class="card-title">Describe your rule</div><div class="card-sub">Try one of the examples or write your own</div></div></div>
-            <div class="chat-pane">
-              <div class="chat-bubble chat-user">Route Instagram leads for MBA and BBA programs to Priya Sharma and Neha Kulkarni, split evenly, but only during business hours (9am–7pm IST). Everything else should fall through to the next rule.</div>
-              <div class="chat-bubble chat-ai">Got it. I'll create a rule matching <b>source = Instagram</b> and <b>program IN (MBA, BBA)</b>, active only <b>09:00–19:00 IST</b>, distributing leads by <b>round robin</b> between Priya Sharma and Neha Kulkarni. Leads outside business hours or from other sources will pass to the next rule in priority order. Review the draft on the right — priority, team and hours are all editable before you save.</div>
-              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">
-                <button class="prompt-chip" type="button">Balance leads evenly across engineering counsellors</button>
-                <button class="prompt-chip" type="button">Send high-budget international leads to senior staff</button>
-                <button class="prompt-chip" type="button">Queue after-hours leads for the night shift pool</button>
+            <div class="card-head">
+              <div><div class="card-title">Describe your rule</div><div class="card-sub" id="builderModeSub">Try one of the examples or write your own</div></div>
+              <div class="seg" id="builderMode" style="width:190px; flex:none;"><button class="on" data-mode="ai">AI describe</button><button data-mode="manual">Add manually</button></div>
+            </div>
+            <div id="builderAiPanel">
+              <div class="chat-pane">
+                <div class="chat-bubble chat-user">Route Instagram leads for MBA and BBA programs to Priya Sharma and Neha Kulkarni, split evenly, but only during business hours (9am–7pm IST). Everything else should fall through to the next rule.</div>
+                <div class="chat-bubble chat-ai">Got it. I'll create a rule matching <b>source = Instagram</b> and <b>program IN (MBA, BBA)</b>, active only <b>09:00–19:00 IST</b>, distributing leads by <b>round robin</b> between Priya Sharma and Neha Kulkarni. Leads outside business hours or from other sources will pass to the next rule in priority order. Review the draft on the right — priority, team and hours are all editable before you save.</div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">
+                  <button class="prompt-chip" type="button">Balance leads evenly across engineering counsellors</button>
+                  <button class="prompt-chip" type="button">Send high-budget international leads to senior staff</button>
+                  <button class="prompt-chip" type="button">Queue after-hours leads for the night shift pool</button>
+                </div>
+              </div>
+              <div class="builder-input">
+                <textarea placeholder="e.g. Route leads from the Pune education fair to counsellors who speak Marathi…"></textarea>
+                <button class="btn btn-primary" style="align-self:flex-end;"><svg class="icon"><use href="#ic-spark"/></svg>Generate</button>
               </div>
             </div>
-            <div class="builder-input">
-              <textarea placeholder="e.g. Route leads from the Pune education fair to counsellors who speak Marathi…"></textarea>
-              <button class="btn btn-primary" style="align-self:flex-end;"><svg class="icon"><use href="#ic-spark"/></svg>Generate</button>
+            <div class="form-grid" id="builderManualPanel" style="display:none;">
+              <div class="field"><label>Rule name</label><input type="text" id="manRuleName" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
+              <div class="field"><label>Priority</label><input type="number" id="manPriority" min="1" max="99" value="1"></div>
+              <div class="field"><label>Lead source</label>
+                <select id="manSource"><option value="">Any source</option><option>Facebook Ads</option><option>Google Ads</option><option>Website Organic</option><option>Referral</option><option>Education Fair</option><option>Instagram</option><option>Walk-in</option><option>LinkedIn</option></select>
+              </div>
+              <div class="field"><label>Program</label>
+                <select id="manProgram"><option value="">Any program</option><option>MBA</option><option>Executive MBA</option><option>B.Tech CSE</option><option>B.Tech Mechanical</option><option>BBA</option><option>MCA</option><option>Diploma in Design</option><option>PhD Programs</option></select>
+              </div>
+              <div class="field"><label>Assign to</label><input type="text" id="manAssignTo" placeholder="e.g. Priya Sharma, Neha Kulkarni"></div>
+              <div class="field"><label>Distribution</label>
+                <select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Direct assign</option><option>Proximity</option><option>Language routing</option><option>Global round robin</option></select>
+              </div>
+              <div class="field full"><label>Fallback</label>
+                <select id="manFallback"><option value="false">Continue to next rule</option><option value="true">Stop here (catch-all)</option></select>
+              </div>
+              <div class="field full" style="margin-top:4px;">
+                <button class="btn btn-primary" style="width:100%; justify-content:center;" type="button" id="manualSaveBtn"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button>
+              </div>
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" id="builderDraftCard">
             <div class="card-head">
               <div><div class="card-title">Generated rule draft</div><div class="card-sub">Parsed from your description — edit before saving</div></div>
               <span class="chip chip-info"><span class="dot"></span>Draft</span>
@@ -904,83 +909,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         </div>
       </section>
 
-      <!-- ============ ANALYTICS ============ -->
-      <section class="view" id="view-analytics">
-        <div class="view-header">
-          <div>
-            <h1 class="view-title">Analytics</h1>
-            <p class="view-sub">Routing performance across rules, teams and time</p>
-          </div>
-          <div class="pillbar"><button class="pill active">30 days</button><button class="pill">90 days</button><button class="pill">This term</button></div>
-        </div>
-
-        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
-          <div class="stat-tile">
-            <div class="stat-top"><span class="stat-label">Leads this month</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-inbox"/></svg></span></div>
-            <div class="stat-value tabular">86,214</div>
-            <div class="stat-foot up">9.8% vs last month</div>
-          </div>
-          <div class="stat-tile">
-            <div class="stat-top"><span class="stat-label">Overall conversion</span><span class="stat-icon i-success"><svg class="icon"><use href="#ic-check"/></svg></span></div>
-            <div class="stat-value tabular">31.4%</div>
-            <div class="stat-foot up">+1.6pt vs last month</div>
-          </div>
-          <div class="stat-tile">
-            <div class="stat-top"><span class="stat-label">Avg. time-to-assign</span><span class="stat-icon i-info"><svg class="icon"><use href="#ic-clock"/></svg></span></div>
-            <div class="stat-value tabular">52s</div>
-            <div class="stat-foot up">Down from 1m 34s</div>
-          </div>
-          <div class="stat-tile">
-            <div class="stat-top"><span class="stat-label">SLA compliance</span><span class="stat-icon i-warning"><svg class="icon"><use href="#ic-shield"/></svg></span></div>
-            <div class="stat-value tabular">94.2%</div>
-            <div class="stat-foot flat">Target 95%</div>
-          </div>
-        </div>
-
-        <div class="chart-grid" style="margin-top:2px;">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Assignment time trend</div><div class="card-sub">Avg. seconds from lead capture to assignment, 30 days</div></div>
-            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartTimeTrend"></canvas></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">Lead source breakdown</div></div>
-            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartSourceFull"></canvas></div>
-          </div>
-        </div>
-        <div class="chart-grid">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Rule performance</div><div class="card-sub">Matched leads today, by rule</div></div>
-            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartRulePerf"></canvas></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">SLA compliance rate</div><div class="card-sub">14-day trend against 95% target</div></div>
-            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartSlaTrend"></canvas></div>
-          </div>
-        </div>
-        <div class="chart-grid">
-          <div class="card">
-            <div class="card-head"><div class="card-title">Conversion leaderboard</div><div class="card-sub">Top counsellors by lead-to-admit conversion</div></div>
-            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartLeaderboard"></canvas></div>
-          </div>
-          <div class="card">
-            <div class="card-head"><div class="card-title">Team load distribution</div><div class="card-sub">Active leads vs remaining capacity</div></div>
-            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartTeamLoad"></canvas></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ INTEGRATIONS ============ -->
-      <section class="view" id="view-integrations">
-        <div class="view-header">
-          <div>
-            <h1 class="view-title">Integrations</h1>
-            <p class="view-sub">Lead sources connected to the routing engine</p>
-          </div>
-          <div class="view-actions"><button class="btn btn-primary"><svg class="icon"><use href="#ic-plus"/></svg>Connect source</button></div>
-        </div>
-        <div class="int-grid" id="intGrid"></div>
-      </section>
-
       <!-- ============ SETTINGS ============ -->
       <section class="view" id="view-settings">
         <div class="view-header">
@@ -1037,7 +965,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script>
 /* ================= DATA ================= */
 const counsellors = [
@@ -1092,16 +1019,6 @@ const historyRows = [
   {id:"LD-48155", name:"Devika Pillai", source:"Instagram", course:"Diploma in Design", rule:"Default Round Robin", to:"Karan Mehta", time:"07:58 AM", sla:"Met", outcome:"Converted"},
   {id:"LD-48141", name:"Yusuf Khan", source:"Education Fair", course:"Executive MBA", rule:"International Fee-Paying Leads", to:"Fatima Sheikh", time:"07:44 AM", sla:"Met", outcome:"Converted"},
   {id:"LD-48130", name:"Isha Reddy", source:"Google Ads", course:"MBA", rule:"MBA · Facebook High-Intent", to:"Neha Kulkarni", time:"07:30 AM", sla:"Met", outcome:"Contacted"},
-];
-
-const integrations = [
-  {name:"Facebook Lead Ads", desc:"Instant sync of lead-form submissions", connected:true, sync:"Synced 2 min ago", icon:"ic-inbox", cls:"i-accent"},
-  {name:"Google Ads Lead Forms", desc:"Search &amp; display campaign leads", connected:true, sync:"Synced 4 min ago", icon:"ic-target", cls:"i-info"},
-  {name:"Website Enquiry Forms", desc:"API webhook from the admissions site", connected:true, sync:"Synced 1 min ago", icon:"ic-plug", cls:"i-success"},
-  {name:"WhatsApp Business", desc:"Leads from click-to-chat campaigns", connected:true, sync:"Synced 6 min ago", icon:"ic-bell", cls:"i-success"},
-  {name:"Education Fair App", desc:"Offline scans synced after each event", connected:true, sync:"Synced 3 hr ago", icon:"ic-users", cls:"i-warning"},
-  {name:"Referral Portal", desc:"Alumni &amp; student referral submissions", connected:true, sync:"Synced 11 min ago", icon:"ic-history", cls:"i-info"},
-  {name:"Zapier", desc:"Route leads from 6,000+ connected apps", connected:false, sync:"Not connected", icon:"ic-zap", cls:"i-critical"},
 ];
 
 /* ================= RENDER HELPERS ================= */
@@ -1240,23 +1157,6 @@ function renderHistory(){
     </tr>`).join('') : `<tr><td colspan="8" class="empty-note">No assignments match your filters.</td></tr>`;
 }
 
-/* integrations */
-function renderIntegrations(){
-  document.getElementById('intGrid').innerHTML = integrations.map(i=>`
-    <div class="card int-card">
-      <div class="int-top">
-        <div class="int-icon ${i.cls}" style="background:var(--${i.cls.replace('i-','')}-soft); color:var(--${i.cls.replace('i-','')})"><svg class="icon"><use href="#${i.icon}"/></svg></div>
-        <div><div class="int-name">${i.name}</div></div>
-      </div>
-      <div class="int-desc">${i.desc}</div>
-      <div class="int-foot">
-        ${i.connected?'<span class="chip chip-success"><span class="dot"></span>Connected</span>':'<span class="chip chip-neutral"><span class="dot"></span>Not connected</span>'}
-        <button class="btn btn-sm">${i.connected?'Configure':'Connect'}</button>
-      </div>
-      <div class="int-sync">${i.sync}</div>
-    </div>`).join('');
-}
-
 /* ================= NAV ================= */
 function goTo(view){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
@@ -1285,6 +1185,53 @@ document.getElementById('simHours').addEventListener('click', e=>{
   const btn = e.target.closest('button'); if(!btn) return;
   document.querySelectorAll('#simHours button').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
+});
+
+/* ================= AI RULE BUILDER (manual add) ================= */
+document.getElementById('builderMode').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#builderMode button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const isManual = btn.dataset.mode === 'manual';
+  document.getElementById('builderAiPanel').style.display = isManual ? 'none' : '';
+  document.getElementById('builderManualPanel').style.display = isManual ? 'grid' : 'none';
+  document.getElementById('builderDraftCard').style.display = isManual ? 'none' : '';
+  document.getElementById('builderGrid').style.gridTemplateColumns = isManual ? '1fr' : '1fr 1fr';
+  document.getElementById('builderModeSub').textContent = isManual
+    ? 'Fill in the fields to add a rule directly — no AI needed'
+    : 'Try one of the examples or write your own';
+});
+
+document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
+  const nameEl = document.getElementById('manRuleName');
+  const name = (nameEl.value||'').trim();
+  if(!name){ nameEl.focus(); return; }
+  const src = document.getElementById('manSource').value;
+  const prog = document.getElementById('manProgram').value;
+  const assignTo = (document.getElementById('manAssignTo').value||'Unassigned').trim();
+  const dist = document.getElementById('manDist').value;
+  const isCatch = document.getElementById('manFallback').value === 'true';
+  const priority = Math.max(1, parseInt(document.getElementById('manPriority').value,10) || (rules.length+1));
+
+  const cond = [];
+  if(src) cond.push(["source","=",src]);
+  if(prog) cond.push(["course","=",prog]);
+  if(!cond.length) cond.push(["else","=","no match above"]);
+
+  const idx = Math.min(priority-1, rules.length);
+  rules.splice(idx, 0, {p:priority, name, cond, team:assignTo, dist, matches:0, active:true, catch:isCatch});
+  let n = 1;
+  rules.forEach(r=>{ if(!r.catch) r.p = n++; });
+
+  renderRules();
+  const badge = document.querySelector('.nav-badge');
+  if(badge) badge.textContent = rules.length;
+
+  nameEl.value=''; document.getElementById('manAssignTo').value='';
+  document.getElementById('manSource').value=''; document.getElementById('manProgram').value='';
+  document.getElementById('manPriority').value='1';
+
+  goTo('rules');
 });
 
 /* ================= SIMULATOR ================= */
@@ -1357,125 +1304,8 @@ function runSimulation(){
     </div>`).join('');
 }
 
-/* ================= CHARTS ================= */
-let chartInstances = {};
-function theme(){
-  const cs = getComputedStyle(document.documentElement);
-  return {
-    ink: cs.getPropertyValue('--ink').trim(),
-    inkSoft: cs.getPropertyValue('--ink-soft').trim(),
-    inkFaint: cs.getPropertyValue('--ink-faint').trim(),
-    border: cs.getPropertyValue('--border').trim(),
-    accent: cs.getPropertyValue('--accent').trim(),
-    success: cs.getPropertyValue('--success').trim(),
-    warning: cs.getPropertyValue('--warning').trim(),
-    critical: cs.getPropertyValue('--critical').trim(),
-    info: cs.getPropertyValue('--info').trim(),
-    surface: cs.getPropertyValue('--surface').trim(),
-  };
-}
-function destroyAll(){ Object.values(chartInstances).forEach(c=>c.destroy()); chartInstances={}; }
-
-function buildCharts(){
-  if(typeof Chart === 'undefined'){ return; }
-  destroyAll();
-  const t = theme();
-  Chart.defaults.font.family = "'Inter', sans-serif";
-  Chart.defaults.font.size = 11.5;
-  Chart.defaults.color = t.inkSoft;
-
-  const days14 = ["Aug 21","Aug 22","Aug 23","Aug 24","Aug 25","Aug 26","Aug 27","Aug 28","Aug 29","Aug 30","Aug 31","Sep 1","Sep 2","Sep 3"];
-  const leadsRecv = [3800,4020,3950,4300,4550,4700,4100,3900,4250,4480,4600,4750,4900,4820];
-  const leadsAsn  = [3610,3860,3790,4120,4360,4520,3930,3720,4080,4300,4430,4570,4700,4610];
-
-  chartInstances.trend = new Chart(document.getElementById('chartTrend'), {
-    type:'line',
-    data:{labels:days14, datasets:[
-      {label:'Leads received', data:leadsRecv, borderColor:t.accent, backgroundColor:hexA(t.accent,0.14), fill:true, tension:.35, pointRadius:0, borderWidth:2.4},
-      {label:'Leads assigned', data:leadsAsn, borderColor:t.success, backgroundColor:hexA(t.success,0.10), fill:true, tension:.35, pointRadius:0, borderWidth:2.4},
-    ]},
-    options:{plugins:{legend:{display:false}}, scales:{
-      x:{grid:{display:false}, ticks:{color:t.inkFaint}},
-      y:{grid:{color:t.border}, ticks:{color:t.inkFaint}, beginAtZero:false}
-    }, interaction:{mode:'index', intersect:false}}
-  });
-
-  chartInstances.sourceMini = new Chart(document.getElementById('chartSourceMini'), {
-    type:'doughnut',
-    data:{labels:['Facebook Ads','Website Organic','Google Ads','Referral','Education Fair','Instagram','Walk-in','LinkedIn'],
-      datasets:[{data:[34,22,18,10,7,5,3,1], backgroundColor:[t.accent,t.success,t.info,t.warning,'#B48CE8',t.critical,t.inkFaint,'#7CC6D9'], borderWidth:0}]},
-    options:{cutout:'68%', plugins:{legend:{display:false}}}
-  });
-  chartInstances.sourceFull = new Chart(document.getElementById('chartSourceFull'), {
-    type:'doughnut',
-    data:{labels:['Facebook Ads','Website Organic','Google Ads','Referral','Education Fair','Instagram','Walk-in','LinkedIn'],
-      datasets:[{data:[34,22,18,10,7,5,3,1], backgroundColor:[t.accent,t.success,t.info,t.warning,'#B48CE8',t.critical,t.inkFaint,'#7CC6D9'], borderWidth:0}]},
-    options:{cutout:'62%', plugins:{legend:{position:'right', labels:{color:t.inkSoft, boxWidth:10, padding:12}}}}
-  });
-
-  const days30 = Array.from({length:30},(_,i)=> 'Aug '+(i+5>31? '': (i+5)));
-  const timeTrend = [95,92,90,88,85,84,80,78,76,75,73,70,68,66,65,63,61,60,58,57,56,55,54,53,51,50,49,48,47,47];
-  chartInstances.timeTrend = new Chart(document.getElementById('chartTimeTrend'), {
-    type:'line',
-    data:{labels:days30.map((_,i)=>i+1), datasets:[{data:timeTrend, borderColor:t.info, backgroundColor:hexA(t.info,0.12), fill:true, tension:.3, pointRadius:0, borderWidth:2.2}]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{maxTicksLimit:8, color:t.inkFaint}}, y:{grid:{color:t.border}, ticks:{color:t.inkFaint, callback:v=>v+'s'}}}}
-  });
-
-  const ruleNames = rules.map(r=>r.name);
-  const ruleMatches = rules.map(r=>r.matches);
-  chartInstances.rulePerf = new Chart(document.getElementById('chartRulePerf'), {
-    type:'bar',
-    data:{labels:ruleNames, datasets:[{data:ruleMatches, backgroundColor:t.accent, borderRadius:5, maxBarThickness:16}]},
-    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:t.border}, ticks:{color:t.inkFaint}}, y:{grid:{display:false}, ticks:{color:t.inkSoft}}}}
-  });
-
-  const sla14 = [93.1,92.4,94.0,95.2,96.1,94.8,93.5,92.9,94.4,95.6,96.2,95.1,94.6,94.2];
-  chartInstances.slaTrend = new Chart(document.getElementById('chartSlaTrend'), {
-    type:'line',
-    data:{labels:days14, datasets:[
-      {label:'SLA %', data:sla14, borderColor:t.success, backgroundColor:hexA(t.success,0.12), fill:true, tension:.3, pointRadius:0, borderWidth:2.2},
-      {label:'Target', data:days14.map(()=>95), borderColor:t.inkFaint, borderDash:[5,5], pointRadius:0, borderWidth:1.4, fill:false}
-    ]},
-    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{color:t.inkFaint}}, y:{grid:{color:t.border}, ticks:{color:t.inkFaint, callback:v=>v+'%'}, suggestedMin:88, suggestedMax:100}}}
-  });
-
-  const lead = counsellors.slice().sort((a,b)=>b.conv-a.conv).slice(0,8);
-  chartInstances.leaderboard = new Chart(document.getElementById('chartLeaderboard'), {
-    type:'bar',
-    data:{labels:lead.map(c=>c.name), datasets:[{data:lead.map(c=>c.conv), backgroundColor:t.success, borderRadius:5, maxBarThickness:16}]},
-    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:t.border}, ticks:{color:t.inkFaint, callback:v=>v+'%'}}, y:{grid:{display:false}, ticks:{color:t.inkSoft}}}}
-  });
-
-  const teams = ["MBA Team","Engineering Team","Undergraduate Team","Executive Programs","International Admissions","Night Shift Pool"];
-  const teamActive = teams.map(tm=> counsellors.filter(c=>c.team===tm).reduce((s,c)=>s+c.active,0));
-  const teamCap = teams.map(tm=> counsellors.filter(c=>c.team===tm).reduce((s,c)=>s+c.cap,0));
-  const teamRemain = teamCap.map((c,i)=>c-teamActive[i]);
-  chartInstances.teamLoad = new Chart(document.getElementById('chartTeamLoad'), {
-    type:'bar',
-    data:{labels:teams, datasets:[
-      {label:'Active leads', data:teamActive, backgroundColor:t.accent, borderRadius:5, maxBarThickness:20},
-      {label:'Remaining capacity', data:teamRemain, backgroundColor:t.border, borderRadius:5, maxBarThickness:20},
-    ]},
-    options:{indexAxis:'y', plugins:{legend:{display:true, position:'bottom', labels:{color:t.inkSoft, boxWidth:10}}}, scales:{x:{stacked:true, grid:{color:t.border}, ticks:{color:t.inkFaint}}, y:{stacked:true, grid:{display:false}, ticks:{color:t.inkSoft}}}}
-  });
-}
-function hexA(hex, a){
-  hex = hex.trim();
-  if(hex.startsWith('#')){
-    const n = hex.replace('#','');
-    const bigint = parseInt(n.length===3? n.split('').map(c=>c+c).join(''): n, 16);
-    const r=(bigint>>16)&255, g=(bigint>>8)&255, b=bigint&255;
-    return `rgba(${r},${g},${b},${a})`;
-  }
-  return hex;
-}
-
 /* ================= INIT ================= */
 renderDashCapacity(); renderDashFeed(); renderDashRules(); renderDashAlerts();
-renderRules(); renderCounsellors(); renderHistory(); renderIntegrations();
+renderRules(); renderCounsellors(); renderHistory();
 runSimulation();
-try{ buildCharts(); }catch(e){ console.error('Chart rendering unavailable:', e); }
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
-  setTimeout(()=>{ try{ buildCharts(); }catch(e){} }, 60);
-});
 </script>
