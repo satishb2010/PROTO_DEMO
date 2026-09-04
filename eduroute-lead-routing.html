@@ -1,0 +1,1481 @@
+<title>EduRoute Lead Routing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#F5F3FB;
+  --surface:#FFFFFF;
+  --surface-2:#FBFAFE;
+  --surface-sunken:#EFEDF7;
+  --border:#E3E0F0;
+  --border-strong:#CFC9E6;
+  --ink:#17162A;
+  --ink-soft:#54506E;
+  --ink-faint:#8E8AA8;
+  --accent:#5B3DF5;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#EEEAFE;
+  --accent-strong:#4327D6;
+  --accent-line: rgba(91,61,245,0.35);
+  --success:#0F7A54;
+  --success-soft:#E1F5EC;
+  --warning:#AD5F09;
+  --warning-soft:#FBEDD8;
+  --critical:#BF2A41;
+  --critical-soft:#FBE4E8;
+  --info:#2158B8;
+  --info-soft:#E5EEFC;
+  --sidebar-bg:#14132A;
+  --sidebar-bg-2:#1B1A38;
+  --sidebar-ink:#B5B1D6;
+  --sidebar-ink-strong:#FFFFFF;
+  --sidebar-border:rgba(255,255,255,0.08);
+  --sidebar-active-bg:rgba(139,123,255,0.22);
+  --sidebar-active-ink:#FFFFFF;
+  --shadow-sm: 0 1px 2px rgba(29,22,68,0.06);
+  --shadow-md: 0 6px 20px -6px rgba(29,22,68,0.16);
+  --shadow-lg: 0 20px 45px -14px rgba(29,22,68,0.28);
+  --font-display:'Lexend', 'Segoe UI', system-ui, sans-serif;
+  --font-body:'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  --radius-card:14px;
+  --radius-ctl:9px;
+  --radius-pill:999px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C0B18;
+    --surface:#16152A;
+    --surface-2:#1C1A33;
+    --surface-sunken:#100F1F;
+    --border:#2C2A48;
+    --border-strong:#3A3860;
+    --ink:#F1EFFB;
+    --ink-soft:#B7B3D6;
+    --ink-faint:#7C79A0;
+    --accent:#9384FF;
+    --accent-ink:#14122B;
+    --accent-soft:rgba(147,132,255,0.16);
+    --accent-strong:#AFA3FF;
+    --accent-line: rgba(147,132,255,0.4);
+    --success:#3FDBA3;
+    --success-soft:rgba(63,219,163,0.14);
+    --warning:#F0A94A;
+    --warning-soft:rgba(240,169,74,0.14);
+    --critical:#FF7A8C;
+    --critical-soft:rgba(255,122,140,0.14);
+    --info:#79A9FF;
+    --info-soft:rgba(121,169,255,0.14);
+    --sidebar-bg:#090814;
+    --sidebar-bg-2:#100E22;
+    --sidebar-border:rgba(255,255,255,0.06);
+    --sidebar-active-bg:rgba(147,132,255,0.22);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 6px 20px -6px rgba(0,0,0,0.5);
+    --shadow-lg: 0 20px 45px -14px rgba(0,0,0,0.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C0B18;
+  --surface:#16152A;
+  --surface-2:#1C1A33;
+  --surface-sunken:#100F1F;
+  --border:#2C2A48;
+  --border-strong:#3A3860;
+  --ink:#F1EFFB;
+  --ink-soft:#B7B3D6;
+  --ink-faint:#7C79A0;
+  --accent:#9384FF;
+  --accent-ink:#14122B;
+  --accent-soft:rgba(147,132,255,0.16);
+  --accent-strong:#AFA3FF;
+  --accent-line: rgba(147,132,255,0.4);
+  --success:#3FDBA3;
+  --success-soft:rgba(63,219,163,0.14);
+  --warning:#F0A94A;
+  --warning-soft:rgba(240,169,74,0.14);
+  --critical:#FF7A8C;
+  --critical-soft:rgba(255,122,140,0.14);
+  --info:#79A9FF;
+  --info-soft:rgba(121,169,255,0.14);
+  --sidebar-bg:#090814;
+  --sidebar-bg-2:#100E22;
+  --sidebar-border:rgba(255,255,255,0.06);
+  --sidebar-active-bg:rgba(147,132,255,0.22);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 6px 20px -6px rgba(0,0,0,0.5);
+  --shadow-lg: 0 20px 45px -14px rgba(0,0,0,0.6);
+}
+
+*{box-sizing:border-box;}
+html{color-scheme:light dark;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display); margin:0; color:var(--ink); text-wrap:balance;}
+p{margin:0;}
+button{font-family:inherit;}
+::selection{background:var(--accent-soft); color:var(--ink);}
+a{color:var(--accent);}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+.tabular{font-variant-numeric:tabular-nums;}
+
+/* ============ ICONS ============ */
+.icon{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;display:block;}
+.icon-lg{width:20px;height:20px;}
+.icon-sm{width:13px;height:13px;}
+
+/* ============ APP SHELL ============ */
+.app{display:flex; min-height:100vh; background:var(--bg);}
+
+/* ---- sidebar ---- */
+.sidebar{
+  width:258px; flex:none; background:var(--sidebar-bg);
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  border-right:1px solid var(--sidebar-border); z-index:40; transition:transform .25s ease;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:20px 20px 16px; }
+.brand-mark{
+  width:34px; height:34px; border-radius:10px; flex:none;
+  background:linear-gradient(155deg, var(--accent) 0%, #8C6BFF 100%);
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);
+}
+.brand-mark .icon{stroke:#fff; width:19px; height:19px;}
+.brand-word{font-family:var(--font-display); font-weight:700; font-size:16.5px; color:var(--sidebar-ink-strong); letter-spacing:.1px;}
+.brand-word em{font-style:normal; color:#9F8CFF;}
+.brand-sub{font-size:10.5px; color:var(--sidebar-ink); letter-spacing:.4px; margin-top:1px;}
+
+.sidebar-scroll{flex:1; overflow-y:auto; padding:4px 12px 12px;}
+.nav-group{margin-top:18px;}
+.nav-group:first-child{margin-top:2px;}
+.nav-label{font-size:10.5px; font-weight:600; letter-spacing:1.1px; color:#716C99; text-transform:uppercase; padding:0 10px 8px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:9px 10px; border-radius:9px; color:var(--sidebar-ink); background:transparent; border:none;
+  font-size:13.4px; font-weight:500; cursor:pointer; margin-bottom:2px; position:relative;
+}
+.nav-item .icon{stroke:#8B87B3;}
+.nav-item:hover{background:var(--sidebar-bg-2); color:#fff;}
+.nav-item:hover .icon{stroke:#C9C4EE;}
+.nav-item.active{background:var(--sidebar-active-bg); color:var(--sidebar-active-ink); font-weight:600;}
+.nav-item.active .icon{stroke:#C6BBFF;}
+.nav-item.active::before{content:""; position:absolute; left:-12px; top:8px; bottom:8px; width:3px; border-radius:3px; background:#9F8CFF;}
+.nav-badge{
+  margin-left:auto; font-size:10.5px; font-weight:700; padding:1.5px 6px; border-radius:999px;
+  background:rgba(255,255,255,0.1); color:#D9D5F5; font-family:var(--font-mono);
+}
+.nav-badge.warn{background:rgba(240,169,74,0.22); color:#F4C27C;}
+
+.sidebar-foot{padding:14px; border-top:1px solid var(--sidebar-border);}
+.org-card{
+  display:flex; align-items:center; gap:10px; padding:10px; border-radius:11px; background:var(--sidebar-bg-2);
+  border:1px solid var(--sidebar-border);
+}
+.org-avatar{width:30px; height:30px; border-radius:8px; background:#2A2856; display:flex; align-items:center; justify-content:center; color:#B7ACFF; font-family:var(--font-display); font-weight:700; font-size:12.5px; flex:none;}
+.org-name{font-size:12.5px; color:#EDEBFA; font-weight:600; line-height:1.25;}
+.org-plan{font-size:10.5px; color:#8B87B3;}
+
+/* ---- main ---- */
+.main{flex:1; min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:14px;
+  padding:12px 26px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+.menu-btn{display:none; background:none; border:none; color:var(--ink-soft); padding:6px; cursor:pointer; border-radius:8px;}
+.search-box{
+  display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--border);
+  border-radius:10px; padding:8px 12px; width:340px; color:var(--ink-faint);
+}
+.search-box input{border:none; background:none; outline:none; font-size:13px; color:var(--ink); width:100%; font-family:var(--font-body);}
+.search-box input::placeholder{color:var(--ink-faint);}
+.search-box kbd{font-family:var(--font-mono); font-size:10px; border:1px solid var(--border-strong); border-radius:5px; padding:1.5px 5px; color:var(--ink-faint); background:var(--surface);}
+.live-pill{
+  display:flex; align-items:center; gap:7px; font-size:12px; color:var(--success); background:var(--success-soft);
+  padding:6px 12px; border-radius:999px; font-weight:600; white-space:nowrap;
+}
+.live-dot{width:7px; height:7px; border-radius:50%; background:var(--success); box-shadow:0 0 0 3px var(--success-soft); animation:pulse 2.2s infinite;}
+@media (prefers-reduced-motion: reduce){.live-dot{animation:none;}}
+@keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.45;}}
+.topbar-spacer{flex:1;}
+.icon-btn{
+  position:relative; width:36px; height:36px; border-radius:10px; border:1px solid var(--border); background:var(--surface);
+  color:var(--ink-soft); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;
+}
+.icon-btn:hover{background:var(--surface-2); color:var(--ink);}
+.icon-btn .dot{position:absolute; top:6px; right:7px; width:7px; height:7px; border-radius:50%; background:var(--critical); border:2px solid var(--surface);}
+.topbar-actions{display:flex; align-items:center; gap:8px;}
+.user-chip{display:flex; align-items:center; gap:9px; padding:5px 8px 5px 5px; border-radius:11px; cursor:pointer; border:1px solid transparent;}
+.user-chip:hover{background:var(--surface-2); border-color:var(--border);}
+.user-avatar{
+  width:32px; height:32px; border-radius:9px; background:linear-gradient(155deg,var(--accent),#8C6BFF); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:13px; flex:none;
+}
+.user-name{font-size:12.8px; font-weight:600; color:var(--ink); line-height:1.2;}
+.user-role{font-size:11px; color:var(--ink-faint);}
+.divider-v{width:1px; align-self:stretch; background:var(--border); margin:0 2px;}
+
+.content{padding:26px 30px 60px; max-width:1520px; width:100%; margin:0 auto;}
+.view{display:none;}
+.view.active{display:block; animation:viewIn .28s ease;}
+@keyframes viewIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+@media (prefers-reduced-motion: reduce){.view.active{animation:none;}}
+
+.view-header{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:22px;}
+.view-title{font-size:23px; font-weight:700; letter-spacing:-.2px;}
+.view-sub{font-size:13.2px; color:var(--ink-soft); margin-top:5px;}
+.view-actions{display:flex; gap:10px; flex-wrap:wrap;}
+
+/* ============ BUTTONS ============ */
+.btn{
+  display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; padding:9px 15px;
+  border-radius:10px; border:1px solid var(--border-strong); background:var(--surface); color:var(--ink);
+  cursor:pointer; white-space:nowrap; font-family:var(--font-body); transition:transform .08s ease;
+}
+.btn:active{transform:scale(.97);}
+.btn:hover{background:var(--surface-2);}
+.btn-primary{
+  background:linear-gradient(155deg,var(--accent),var(--accent-strong)); border-color:transparent; color:var(--accent-ink);
+  box-shadow:var(--shadow-sm);
+}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-ghost{border-color:transparent; background:transparent;}
+.btn-ghost:hover{background:var(--surface-2);}
+.btn-danger-ghost{border-color:transparent; background:transparent; color:var(--critical);}
+.btn-danger-ghost:hover{background:var(--critical-soft);}
+.btn-sm{padding:6px 11px; font-size:12.2px; border-radius:8px;}
+.btn[disabled]{opacity:.5; cursor:not-allowed;}
+
+/* ============ CARDS / GRID ============ */
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card);
+  box-shadow:var(--shadow-sm);
+}
+.card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:18px 20px 14px;}
+.card-title{font-size:15px; font-weight:700; font-family:var(--font-display);}
+.card-sub{font-size:12.3px; color:var(--ink-soft); margin-top:3px;}
+.card-body{padding:0 20px 20px;}
+.card-body-flush{padding:0 0 4px;}
+
+.stat-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:20px;}
+.stat-tile{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:16px 17px;
+  box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:9px; min-width:0;
+}
+.stat-top{display:flex; align-items:center; justify-content:space-between;}
+.stat-label{font-size:11.6px; color:var(--ink-soft); font-weight:600;}
+.stat-icon{width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex:none;}
+.stat-icon .icon{width:15px; height:15px;}
+.stat-icon.i-accent{background:var(--accent-soft); color:var(--accent);}
+.stat-icon.i-success{background:var(--success-soft); color:var(--success);}
+.stat-icon.i-warning{background:var(--warning-soft); color:var(--warning);}
+.stat-icon.i-critical{background:var(--critical-soft); color:var(--critical);}
+.stat-icon.i-info{background:var(--info-soft); color:var(--info);}
+.stat-value{font-size:26px; font-weight:700; font-family:var(--font-display); letter-spacing:-.5px;}
+.stat-foot{display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600;}
+.stat-foot.up{color:var(--success);}
+.stat-foot.down{color:var(--critical);}
+.stat-foot.flat{color:var(--ink-faint); font-weight:500;}
+.stat-foot .icon{width:12px;height:12px;}
+
+.dash-grid{display:grid; grid-template-columns:1.62fr 1fr; gap:16px; align-items:start; margin-bottom:16px;}
+.stack{display:flex; flex-direction:column; gap:16px;}
+.chart-grid{display:grid; grid-template-columns:1.5fr 1fr; gap:16px; margin-top:16px;}
+.chart-box{position:relative; height:230px;}
+.chart-box.tall{height:280px;}
+
+/* ============ TABLE ============ */
+.table-wrap{overflow-x:auto;}
+table{width:100%; border-collapse:collapse; font-size:13px;}
+thead th{
+  text-align:left; font-size:10.8px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-faint);
+  padding:9px 20px; border-bottom:1px solid var(--border); white-space:nowrap; background:var(--surface-2);
+}
+thead th:first-child{padding-left:20px;}
+tbody td{padding:12px 20px; border-bottom:1px solid var(--border); vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+.cell-name{font-weight:600; color:var(--ink);}
+.cell-sub{font-size:11.6px; color:var(--ink-faint); margin-top:1px;}
+.person{display:flex; align-items:center; gap:10px;}
+.avatar-sm{
+  width:31px; height:31px; border-radius:9px; flex:none; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:12px; color:#fff;
+}
+.a1{background:linear-gradient(155deg,#5B3DF5,#8C6BFF);}
+.a2{background:linear-gradient(155deg,#0F7A54,#2FBE8B);}
+.a3{background:linear-gradient(155deg,#B4650A,#E2914A);}
+.a4{background:linear-gradient(155deg,#BF2A41,#E2617A);}
+.a5{background:linear-gradient(155deg,#2158B8,#5C8CE0);}
+.a6{background:linear-gradient(155deg,#8C5AC9,#B48CE8);}
+
+/* status chips */
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:11.3px; font-weight:600; padding:3.5px 9px; border-radius:999px; white-space:nowrap;}
+.chip .dot{width:6px; height:6px; border-radius:50%;}
+.chip-success{background:var(--success-soft); color:var(--success);}
+.chip-success .dot{background:var(--success);}
+.chip-warning{background:var(--warning-soft); color:var(--warning);}
+.chip-warning .dot{background:var(--warning);}
+.chip-critical{background:var(--critical-soft); color:var(--critical);}
+.chip-critical .dot{background:var(--critical);}
+.chip-info{background:var(--info-soft); color:var(--info);}
+.chip-info .dot{background:var(--info);}
+.chip-neutral{background:var(--surface-sunken); color:var(--ink-soft);}
+.chip-neutral .dot{background:var(--ink-faint);}
+
+/* utilization bar */
+.util{display:flex; align-items:center; gap:9px; min-width:120px;}
+.util-track{flex:1; height:6px; border-radius:99px; background:var(--surface-sunken); overflow:hidden;}
+.util-fill{height:100%; border-radius:99px; background:var(--accent);}
+.util-fill.warn{background:var(--warning);}
+.util-fill.crit{background:var(--critical);}
+.util-num{font-size:12px; font-weight:700; width:34px; text-align:right; font-family:var(--font-mono);}
+
+/* code pill for rule logic */
+.code-pill{
+  font-family:var(--font-mono); font-size:11.6px; background:var(--surface-sunken); color:var(--ink-soft);
+  padding:7px 11px; border-radius:8px; border:1px solid var(--border); display:inline-block; line-height:1.6;
+}
+.code-pill b{color:var(--accent); font-weight:600;}
+.code-pill .kw{color:var(--ink-faint); font-weight:600;}
+
+/* pill filters */
+.pillbar{display:flex; gap:7px; flex-wrap:wrap;}
+.pill{
+  font-size:12.3px; font-weight:600; padding:6.5px 13px; border-radius:999px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink-soft); cursor:pointer;
+}
+.pill:hover{background:var(--surface-2);}
+.pill.active{background:var(--accent); border-color:transparent; color:var(--accent-ink);}
+
+/* toggle switch */
+.switch{width:36px; height:21px; border-radius:999px; background:var(--surface-sunken); border:1px solid var(--border-strong); position:relative; cursor:pointer; flex:none; padding:0;}
+.switch::after{content:""; position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .16s ease;}
+.switch.on{background:var(--accent); border-color:transparent;}
+.switch.on::after{transform:translateX(15px);}
+
+/* activity feed */
+.feed{display:flex; flex-direction:column;}
+.feed-item{display:flex; gap:12px; padding:12px 20px; border-bottom:1px solid var(--border);}
+.feed-item:last-child{border-bottom:none;}
+.feed-icon{width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px;}
+.feed-text{font-size:12.9px; color:var(--ink); line-height:1.55;}
+.feed-text b{font-weight:600;}
+.feed-text .mono{font-family:var(--font-mono); font-size:11.8px; color:var(--ink-soft); background:var(--surface-sunken); padding:1px 5px; border-radius:5px;}
+.feed-time{font-size:11.2px; color:var(--ink-faint); white-space:nowrap; margin-left:auto; padding-top:2px;}
+
+/* mini rule list (dashboard) */
+.mini-rule{display:flex; align-items:center; gap:11px; padding:11px 20px; border-bottom:1px solid var(--border);}
+.mini-rule:last-child{border-bottom:none;}
+.rule-rank{width:22px; height:22px; border-radius:7px; background:var(--accent-soft); color:var(--accent); font-family:var(--font-mono); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none;}
+.mini-rule-name{font-size:12.7px; font-weight:600;}
+.mini-rule-meta{font-size:11.3px; color:var(--ink-faint); margin-top:1px;}
+
+/* alert rows */
+.alert-row{display:flex; align-items:center; gap:11px; padding:11px 20px; border-bottom:1px solid var(--border);}
+.alert-row:last-child{border-bottom:none;}
+.alert-dot{width:8px; height:8px; border-radius:50%; background:var(--critical); flex:none;}
+.alert-name{font-size:12.6px; font-weight:600;}
+.alert-meta{font-size:11.2px; color:var(--ink-faint); margin-top:1px;}
+
+hr.sep{border:none; border-top:1px solid var(--border); margin:0;}
+
+/* ============ RULES VIEW ============ */
+.rule-card{
+  display:flex; align-items:flex-start; gap:14px; padding:17px 20px; border-bottom:1px solid var(--border);
+}
+.rule-card:last-child{border-bottom:none;}
+.rule-card.paused{opacity:.62;}
+.grip{color:var(--ink-faint); cursor:grab; padding-top:4px; flex:none;}
+.rule-priority{
+  width:26px; height:26px; border-radius:8px; background:var(--surface-sunken); color:var(--ink-soft);
+  font-family:var(--font-mono); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px;
+}
+.rule-priority.catch{background:var(--info-soft); color:var(--info);}
+.rule-main{flex:1; min-width:0;}
+.rule-top{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:7px;}
+.rule-name{font-size:14px; font-weight:700; font-family:var(--font-display);}
+.badge-catch{font-size:10px; font-weight:700; letter-spacing:.3px; color:var(--info); background:var(--info-soft); padding:2px 7px; border-radius:999px; text-transform:uppercase;}
+.rule-stats{display:flex; gap:18px; margin-top:10px; flex-wrap:wrap;}
+.rule-stat{font-size:11.6px; color:var(--ink-faint);}
+.rule-stat b{color:var(--ink); font-weight:700; font-family:var(--font-mono);}
+.rule-side{display:flex; align-items:center; gap:6px; flex:none;}
+
+/* ============ AI BUILDER ============ */
+.ai-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;}
+.chat-pane{display:flex; flex-direction:column; gap:14px; padding:18px 20px;}
+.chat-bubble{max-width:88%; padding:12px 14px; border-radius:14px; font-size:13.2px; line-height:1.6;}
+.chat-user{align-self:flex-end; background:var(--accent); color:var(--accent-ink); border-bottom-right-radius:4px;}
+.chat-ai{align-self:flex-start; background:var(--surface-sunken); color:var(--ink); border-bottom-left-radius:4px;}
+.chat-ai b{color:var(--accent);}
+.prompt-chip{
+  font-size:12px; padding:7px 12px; border-radius:999px; background:var(--accent-soft); color:var(--accent);
+  border:1px solid var(--accent-line); cursor:pointer; font-weight:600;
+}
+.builder-input{
+  display:flex; gap:10px; padding:14px 20px 18px; border-top:1px solid var(--border);
+}
+.builder-input textarea{
+  flex:1; resize:none; border:1px solid var(--border-strong); border-radius:11px; padding:11px 13px; font-family:var(--font-body);
+  font-size:13.2px; background:var(--surface-2); color:var(--ink); min-height:46px;
+}
+.builder-input textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
+
+.rule-preview{padding:4px 20px 20px;}
+.kv-row{display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px dashed var(--border);}
+.kv-row:last-child{border-bottom:none;}
+.kv-label{font-size:11.6px; color:var(--ink-faint); font-weight:600; text-transform:uppercase; letter-spacing:.4px;}
+.kv-value{font-size:13px; font-weight:600; text-align:right;}
+.slider-row{display:flex; align-items:center; gap:12px; margin-top:4px;}
+input[type=range]{flex:1; accent-color:var(--accent);}
+
+/* ============ SIMULATOR ============ */
+.sim-grid{display:grid; grid-template-columns:.82fr 1.18fr; gap:18px; align-items:start;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:13px; padding:4px 20px 4px;}
+.field{display:flex; flex-direction:column; gap:6px;}
+.field.full{grid-column:1/-1;}
+.field label{font-size:11.6px; font-weight:600; color:var(--ink-soft);}
+.field select, .field input[type=text]{
+  border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); border-radius:9px;
+  padding:9px 10px; font-size:13px; font-family:var(--font-body);
+}
+.seg{display:flex; border:1px solid var(--border-strong); border-radius:9px; overflow:hidden;}
+.seg button{flex:1; padding:8px 6px; font-size:12.2px; font-weight:600; background:var(--surface-2); border:none; color:var(--ink-soft); cursor:pointer;}
+.seg button.on{background:var(--accent); color:var(--accent-ink);}
+
+.trace{display:flex; flex-direction:column;}
+.trace-row{display:flex; align-items:flex-start; gap:11px; padding:11px 20px; border-bottom:1px solid var(--border);}
+.trace-row:last-child{border-bottom:none;}
+.trace-mark{width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px;}
+.trace-mark.pass{background:var(--success-soft); color:var(--success);}
+.trace-mark.fail{background:var(--surface-sunken); color:var(--ink-faint);}
+.trace-mark.win{background:var(--accent); color:var(--accent-ink);}
+.trace-title{font-size:12.9px; font-weight:600;}
+.trace-reason{font-size:11.8px; color:var(--ink-faint); margin-top:2px;}
+
+.result-card{margin:16px 20px 20px; padding:16px; border-radius:12px; background:var(--accent-soft); border:1px solid var(--accent-line);}
+.result-top{display:flex; align-items:center; gap:12px;}
+.result-label{font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--accent); font-weight:700;}
+.candidate-row{display:flex; align-items:center; gap:10px; padding:8px 20px;}
+.candidate-name{font-size:12.4px; font-weight:600; width:120px; flex:none;}
+.candidate-track{flex:1; height:7px; border-radius:99px; background:var(--surface-sunken); overflow:hidden;}
+.candidate-fill{height:100%; background:var(--accent); border-radius:99px;}
+.candidate-score{width:34px; text-align:right; font-family:var(--font-mono); font-size:12px; font-weight:700;}
+
+/* ============ INTEGRATIONS ============ */
+.int-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+.int-card{padding:17px; display:flex; flex-direction:column; gap:12px;}
+.int-top{display:flex; align-items:center; gap:11px;}
+.int-icon{width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:none;}
+.int-name{font-weight:700; font-size:13.6px;}
+.int-desc{font-size:12px; color:var(--ink-soft); line-height:1.5;}
+.int-foot{display:flex; align-items:center; justify-content:space-between; margin-top:2px;}
+.int-sync{font-size:11.2px; color:var(--ink-faint);}
+
+/* ============ SETTINGS ============ */
+.settings-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.settings-row{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:13px 0; border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:13px; font-weight:600;}
+.settings-desc{font-size:11.8px; color:var(--ink-faint); margin-top:2px; max-width:320px;}
+.mini-input{border:1px solid var(--border-strong); background:var(--surface-2); border-radius:8px; padding:7px 9px; font-size:12.6px; width:110px; color:var(--ink); font-family:var(--font-mono);}
+.roles-table td, .roles-table th{padding:10px 20px;}
+
+/* misc */
+.legend{display:flex; gap:14px; flex-wrap:wrap; padding:0 20px 18px; margin-top:-6px;}
+.legend-item{display:flex; align-items:center; gap:6px; font-size:11.8px; color:var(--ink-soft);}
+.legend-dot{width:9px; height:9px; border-radius:3px;}
+.empty-note{padding:20px; text-align:center; color:var(--ink-faint); font-size:12.6px;}
+
+@media (max-width: 1180px){
+  .stat-grid{grid-template-columns:repeat(3,1fr);}
+  .dash-grid, .chart-grid, .ai-grid, .sim-grid, .settings-grid{grid-template-columns:1fr;}
+  .int-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width: 900px){
+  .sidebar{position:fixed; left:0; transform:translateX(-100%); box-shadow:var(--shadow-lg);}
+  .sidebar.open{transform:none;}
+  .menu-btn{display:flex; align-items:center;}
+  .search-box{width:200px;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .int-grid{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+}
+</style>
+
+<!-- ============ ICON SPRITE ============ -->
+<svg style="display:none">
+<symbol id="ic-mark" viewBox="0 0 24 24"><path d="M4 12c2-5 6-8 8-8s6 3 8 8c-2 5-6 8-8 8s-6-3-8-8Z"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.6 2.6M15.4 15.4 18 18M18 6l-2.6 2.6M8.6 15.4 6 18"/></symbol>
+<symbol id="ic-sliders" viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="14" cy="7" r="2.2" fill="var(--surface)"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="17" r="2.2" fill="var(--surface)"/></symbol>
+<symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.7-3.6 3-5.6 5.5-5.6s4.8 2 5.5 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.3 14.6c2.4.3 4 2.1 4.6 5"/></symbol>
+<symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="ic-bars" viewBox="0 0 24 24"><line x1="5" y1="20" x2="5" y2="11"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="19" y1="20" x2="19" y2="14"/></symbol>
+<symbol id="ic-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8Z"/><path d="M12 17v4"/></symbol>
+<symbol id="ic-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.1"/><path d="M12 3.5v2.4M12 18.1v2.4M20.5 12h-2.4M5.9 12H3.5M17.7 6.3l-1.7 1.7M8 16l-1.7 1.7M17.7 17.7 16 16M8 8 6.3 6.3"/></symbol>
+<symbol id="ic-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.3" y1="15.3" x2="20.5" y2="20.5"/></symbol>
+<symbol id="ic-bell" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10Z"/><path d="M10 19a2 2 0 0 0 4 0"/></symbol>
+<symbol id="ic-chev-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+<symbol id="ic-chev-right" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></symbol>
+<symbol id="ic-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="ic-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.3" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-check" viewBox="0 0 24 24"><polyline points="5 13 10 18 19 7"/></symbol>
+<symbol id="ic-x" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+<symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4 21 20H3Z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17.3" r=".4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5Z"/></symbol>
+<symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="13 6 19 12 13 18"/></symbol>
+<symbol id="ic-edit" viewBox="0 0 24 24"><path d="M14.5 5.5 18.5 9.5 8 20H4v-4Z"/></symbol>
+<symbol id="ic-trash" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/></symbol>
+<symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M15 9V5.5A1.5 1.5 0 0 0 13.5 4H5.5A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15H9"/></symbol>
+<symbol id="ic-export" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+<symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7Z"/></symbol>
+<symbol id="ic-zap" viewBox="0 0 24 24"><path d="M12 3 5 13h5l-1 8 8-11h-5Z"/></symbol>
+<symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6.3v5.4c0 4.5-3 7.4-7 8.8-4-1.4-7-4.3-7-8.8V6.3Z"/><polyline points="8.5 12 11 14.5 15.5 9.5"/></symbol>
+<symbol id="ic-inbox" viewBox="0 0 24 24"><path d="M4 12h4l1.5 3h5L16 12h4"/><path d="M5.5 5h13L20 12v5.5A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5V12Z"/></symbol>
+<symbol id="ic-history" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2 5.3"/><polyline points="4 5 4 10 9 10"/><path d="M12 8v4.5l3 2"/></symbol>
+</svg>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg class="icon"><use href="#ic-mark"/></svg></div>
+      <div>
+        <div class="brand-word">EduRoute<em>AI</em></div>
+        <div class="brand-sub">LEAD ROUTING</div>
+      </div>
+    </div>
+    <nav class="sidebar-scroll">
+      <div class="nav-group">
+        <div class="nav-label">Workspace</div>
+        <button class="nav-item active" data-view="dashboard"><svg class="icon"><use href="#ic-grid"/></svg>Dashboard</button>
+        <button class="nav-item" data-view="rules"><svg class="icon"><use href="#ic-target"/></svg>Assignment Rules<span class="nav-badge">8</span></button>
+        <button class="nav-item" data-view="builder"><svg class="icon"><use href="#ic-spark"/></svg>AI Rule Builder</button>
+        <button class="nav-item" data-view="simulator"><svg class="icon"><use href="#ic-sliders"/></svg>Rule Simulator</button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">Operations</div>
+        <button class="nav-item" data-view="counsellors"><svg class="icon"><use href="#ic-users"/></svg>Counsellors &amp; Capacity</button>
+        <button class="nav-item" data-view="history"><svg class="icon"><use href="#ic-history"/></svg>Assignment History</button>
+        <button class="nav-item" data-view="analytics"><svg class="icon"><use href="#ic-bars"/></svg>Analytics</button>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">System</div>
+        <button class="nav-item" data-view="integrations"><svg class="icon"><use href="#ic-plug"/></svg>Integrations</button>
+        <button class="nav-item" data-view="settings"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
+      </div>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="org-card">
+        <div class="org-avatar">GI</div>
+        <div>
+          <div class="org-name">Global Institute Group</div>
+          <div class="org-plan">Enterprise · 6 campuses</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn"><svg class="icon icon-lg"><use href="#ic-grip"/></svg></button>
+      <div class="search-box">
+        <svg class="icon"><use href="#ic-search"/></svg>
+        <input type="text" placeholder="Search leads, rules or counsellors…">
+        <kbd>⌘K</kbd>
+      </div>
+      <div class="live-pill"><span class="live-dot"></span>Live routing active</div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg class="icon"><use href="#ic-bell"/></svg><span class="dot"></span></button>
+        <div class="divider-v"></div>
+        <div class="user-chip">
+          <div class="user-avatar">S</div>
+          <div>
+            <div class="user-name">Satish Rao</div>
+            <div class="user-role">Administrator</div>
+          </div>
+          <svg class="icon icon-sm" style="color:var(--ink-faint)"><use href="#ic-chev-down"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ============ DASHBOARD ============ -->
+      <section class="view active" id="view-dashboard">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Assignment Dashboard</h1>
+            <p class="view-sub">Real-time lead routing and counsellor capacity across all campuses</p>
+          </div>
+          <div class="view-actions">
+            <button class="btn"><svg class="icon"><use href="#ic-export"/></svg>Export report</button>
+            <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-spark"/></svg>Create AI rule</button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Today's leads</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-inbox"/></svg></span></div>
+            <div class="stat-value tabular">4,820</div>
+            <div class="stat-foot up"><svg class="icon"><use href="#ic-arrow-right" style="transform:rotate(-45deg)"/></svg>12.5% vs yesterday</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Assigned</span><span class="stat-icon i-success"><svg class="icon"><use href="#ic-check"/></svg></span></div>
+            <div class="stat-value tabular">4,610</div>
+            <div class="stat-foot up">95.6% of today's leads</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Pending</span><span class="stat-icon i-warning"><svg class="icon"><use href="#ic-clock"/></svg></span></div>
+            <div class="stat-value tabular">120</div>
+            <div class="stat-foot flat">Needs attention</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">SLA breaches</span><span class="stat-icon i-critical"><svg class="icon"><use href="#ic-alert"/></svg></span></div>
+            <div class="stat-value tabular">42</div>
+            <div class="stat-foot down">18 in the last hour</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Auto-assign rate</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-zap"/></svg></span></div>
+            <div class="stat-value tabular">91.4%</div>
+            <div class="stat-foot up">+3.1pt this week</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Avg. time to assign</span><span class="stat-icon i-info"><svg class="icon"><use href="#ic-clock"/></svg></span></div>
+            <div class="stat-value tabular">47s</div>
+            <div class="stat-foot up">Down from 1m 12s</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="stack">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">Live counsellor capacity</div>
+                  <div class="card-sub">Current workload vs configured capacity</div>
+                </div>
+                <button class="btn btn-sm" onclick="goTo('counsellors')">View all</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Counsellor</th><th>Team</th><th>Active leads</th><th>Utilization</th><th>Status</th></tr></thead>
+                  <tbody id="dashCapacityBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">Recent assignment activity</div>
+                  <div class="card-sub">Live feed of routing decisions</div>
+                </div>
+                <button class="btn btn-sm" onclick="goTo('history')">View history</button>
+              </div>
+              <div class="feed" id="dashFeed"></div>
+            </div>
+          </div>
+
+          <div class="stack">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">Top rules by volume</div>
+                  <div class="card-sub">Matches today</div>
+                </div>
+                <button class="btn btn-sm" onclick="goTo('rules')">Manage</button>
+              </div>
+              <div id="dashRules"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">SLA breach alerts</div>
+                  <div class="card-sub">Leads overdue for first response</div>
+                </div>
+                <span class="chip chip-critical"><span class="dot"></span>42 today</span>
+              </div>
+              <div id="dashAlerts"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><div class="card-title">Lead source mix</div></div>
+              <div class="chart-box" style="height:180px; padding:0 16px 6px;"><canvas id="chartSourceMini"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Lead volume &amp; assignment trend</div>
+              <div class="card-sub">Last 14 days, all campuses</div>
+            </div>
+            <div class="legend" style="padding:0;">
+              <span class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Leads received</span>
+              <span class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>Leads assigned</span>
+            </div>
+          </div>
+          <div class="chart-box tall" style="padding:0 20px 20px;"><canvas id="chartTrend"></canvas></div>
+        </div>
+      </section>
+
+      <!-- ============ ASSIGNMENT RULES ============ -->
+      <section class="view" id="view-rules">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Assignment Rules</h1>
+            <p class="view-sub">Rules run top to bottom in priority order — the first match wins</p>
+          </div>
+          <div class="view-actions">
+            <button class="btn"><svg class="icon"><use href="#ic-filter"/></svg>Filter</button>
+            <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="rulesList"></div>
+        </div>
+      </section>
+
+      <!-- ============ AI RULE BUILDER ============ -->
+      <section class="view" id="view-builder">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">AI Rule Builder</h1>
+            <p class="view-sub">Describe how leads should be routed in plain English — EduRoute drafts the logic</p>
+          </div>
+        </div>
+        <div class="ai-grid">
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">Describe your rule</div><div class="card-sub">Try one of the examples or write your own</div></div></div>
+            <div class="chat-pane">
+              <div class="chat-bubble chat-user">Route Instagram leads for MBA and BBA programs to Priya Sharma and Neha Kulkarni, split evenly, but only during business hours (9am–7pm IST). Everything else should fall through to the next rule.</div>
+              <div class="chat-bubble chat-ai">Got it. I'll create a rule matching <b>source = Instagram</b> and <b>program IN (MBA, BBA)</b>, active only <b>09:00–19:00 IST</b>, distributing leads by <b>round robin</b> between Priya Sharma and Neha Kulkarni. Leads outside business hours or from other sources will pass to the next rule in priority order. Review the draft on the right — priority, team and hours are all editable before you save.</div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">
+                <button class="prompt-chip" type="button">Balance leads evenly across engineering counsellors</button>
+                <button class="prompt-chip" type="button">Send high-budget international leads to senior staff</button>
+                <button class="prompt-chip" type="button">Queue after-hours leads for the night shift pool</button>
+              </div>
+            </div>
+            <div class="builder-input">
+              <textarea placeholder="e.g. Route leads from the Pune education fair to counsellors who speak Marathi…"></textarea>
+              <button class="btn btn-primary" style="align-self:flex-end;"><svg class="icon"><use href="#ic-spark"/></svg>Generate</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Generated rule draft</div><div class="card-sub">Parsed from your description — edit before saving</div></div>
+              <span class="chip chip-info"><span class="dot"></span>Draft</span>
+            </div>
+            <div class="rule-preview">
+              <div class="kv-row"><span class="kv-label">Rule name</span><span class="kv-value">Instagram · MBA &amp; BBA Split</span></div>
+              <div class="kv-row"><span class="kv-label">Conditions</span><span class="kv-value">
+                <span class="code-pill"><span class="kw">IF</span> source <b>=</b> Instagram <span class="kw">AND</span> program <b>IN</b> (MBA, BBA)</span>
+              </span></div>
+              <div class="kv-row"><span class="kv-label">Time window</span><span class="kv-value">09:00 – 19:00 IST</span></div>
+              <div class="kv-row"><span class="kv-label">Assign to</span><span class="kv-value">Priya Sharma, Neha Kulkarni</span></div>
+              <div class="kv-row"><span class="kv-label">Distribution</span><span class="kv-value">Round robin (even split)</span></div>
+              <div class="kv-row" style="display:block;">
+                <div style="display:flex; justify-content:space-between;"><span class="kv-label">Priority</span><span class="kv-value tabular">2 of 9</span></div>
+                <div class="slider-row"><input type="range" min="1" max="9" value="2"></div>
+              </div>
+              <div class="kv-row"><span class="kv-label">Fallback</span><span class="kv-value">Continue to next rule</span></div>
+              <div style="display:flex; gap:10px; margin-top:16px;">
+                <button class="btn" style="flex:1;" onclick="goTo('simulator')"><svg class="icon"><use href="#ic-play"/></svg>Test in simulator</button>
+                <button class="btn btn-primary" style="flex:1;"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RULE SIMULATOR ============ -->
+      <section class="view" id="view-simulator">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Rule Simulator</h1>
+            <p class="view-sub">Send a hypothetical lead through the live rule set to see exactly how it would be routed</p>
+          </div>
+        </div>
+        <div class="sim-grid">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Test lead</div></div>
+            <div class="form-grid">
+              <div class="field"><label>Lead source</label>
+                <select id="simSource"><option>Facebook Ads</option><option>Google Ads</option><option selected>Website Organic</option><option>Referral</option><option>Education Fair</option><option>Instagram</option><option>Walk-in</option><option>LinkedIn</option></select>
+              </div>
+              <div class="field"><label>Program</label>
+                <select id="simCourse"><option>MBA</option><option>Executive MBA</option><option selected>B.Tech CSE</option><option>B.Tech Mechanical</option><option>BBA</option><option>MCA</option><option>Diploma in Design</option><option>PhD Programs</option></select>
+              </div>
+              <div class="field"><label>City</label>
+                <select id="simCity"><option>Pune</option><option selected>Mumbai</option><option>Bengaluru</option><option>Delhi NCR</option><option>Chennai</option><option>Hyderabad</option><option>Other</option></select>
+              </div>
+              <div class="field"><label>Budget tier</label>
+                <select id="simBudget"><option>Standard</option><option selected>Premium</option><option>High</option></select>
+              </div>
+              <div class="field"><label>Preferred language</label>
+                <select id="simLang"><option selected>English</option><option>Hindi</option><option>Marathi</option><option>Tamil</option><option>Other</option></select>
+              </div>
+              <div class="field"><label>Submitted</label>
+                <div class="seg" id="simHours"><button class="on" data-v="in">Business hrs</button><button data-v="out">After hours</button></div>
+              </div>
+              <div class="field full" style="margin-top:4px;">
+                <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="runSimulation()"><svg class="icon"><use href="#ic-play"/></svg>Run simulation</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div><div class="card-title">Evaluation trace</div><div class="card-sub">Rules are checked in priority order, top to bottom</div></div></div>
+            <div class="trace" id="simTrace"></div>
+            <div class="result-card" id="simResult"></div>
+            <div class="card-sub" style="padding:0 20px 6px;">Alternate candidates considered</div>
+            <div id="simCandidates" style="padding-bottom:12px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ COUNSELLORS & CAPACITY ============ -->
+      <section class="view" id="view-counsellors">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Counsellors &amp; Capacity</h1>
+            <p class="view-sub">Workload, response time and conversion across every team</p>
+          </div>
+          <div class="view-actions"><button class="btn"><svg class="icon"><use href="#ic-plus"/></svg>Add counsellor</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head" style="flex-wrap:wrap; gap:12px;">
+            <div class="pillbar" id="teamFilter">
+              <button class="pill active" data-team="all">All teams</button>
+              <button class="pill" data-team="MBA Team">MBA Team</button>
+              <button class="pill" data-team="Engineering Team">Engineering</button>
+              <button class="pill" data-team="Undergraduate Team">Undergraduate</button>
+              <button class="pill" data-team="Executive Programs">Executive</button>
+              <button class="pill" data-team="International Admissions">International</button>
+              <button class="pill" data-team="Night Shift Pool">Night Shift</button>
+            </div>
+            <div class="search-box" style="width:220px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="counsellorSearch" placeholder="Search counsellors…"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Counsellor</th><th>Team</th><th>Active / Capacity</th><th>Utilization</th><th>Avg. response</th><th>Conversion</th><th>Languages</th><th>Status</th></tr></thead>
+              <tbody id="counsellorsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ASSIGNMENT HISTORY ============ -->
+      <section class="view" id="view-history">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Assignment History</h1>
+            <p class="view-sub">Full audit trail of every routing decision</p>
+          </div>
+          <div class="view-actions"><button class="btn"><svg class="icon"><use href="#ic-export"/></svg>Export CSV</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head" style="flex-wrap:wrap; gap:12px;">
+            <div class="pillbar" id="historyFilter">
+              <button class="pill active" data-status="all">All outcomes</button>
+              <button class="pill" data-status="Met">SLA met</button>
+              <button class="pill" data-status="At Risk">At risk</button>
+              <button class="pill" data-status="Breached">Breached</button>
+            </div>
+            <div class="search-box" style="width:240px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="historySearch" placeholder="Search lead, rule or counsellor…"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Lead</th><th>Source</th><th>Program</th><th>Matched rule</th><th>Assigned to</th><th>Time</th><th>SLA</th><th>Outcome</th></tr></thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ANALYTICS ============ -->
+      <section class="view" id="view-analytics">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Analytics</h1>
+            <p class="view-sub">Routing performance across rules, teams and time</p>
+          </div>
+          <div class="pillbar"><button class="pill active">30 days</button><button class="pill">90 days</button><button class="pill">This term</button></div>
+        </div>
+
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Leads this month</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-inbox"/></svg></span></div>
+            <div class="stat-value tabular">86,214</div>
+            <div class="stat-foot up">9.8% vs last month</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Overall conversion</span><span class="stat-icon i-success"><svg class="icon"><use href="#ic-check"/></svg></span></div>
+            <div class="stat-value tabular">31.4%</div>
+            <div class="stat-foot up">+1.6pt vs last month</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">Avg. time-to-assign</span><span class="stat-icon i-info"><svg class="icon"><use href="#ic-clock"/></svg></span></div>
+            <div class="stat-value tabular">52s</div>
+            <div class="stat-foot up">Down from 1m 34s</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-top"><span class="stat-label">SLA compliance</span><span class="stat-icon i-warning"><svg class="icon"><use href="#ic-shield"/></svg></span></div>
+            <div class="stat-value tabular">94.2%</div>
+            <div class="stat-foot flat">Target 95%</div>
+          </div>
+        </div>
+
+        <div class="chart-grid" style="margin-top:2px;">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Assignment time trend</div><div class="card-sub">Avg. seconds from lead capture to assignment, 30 days</div></div>
+            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartTimeTrend"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Lead source breakdown</div></div>
+            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartSourceFull"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Rule performance</div><div class="card-sub">Matched leads today, by rule</div></div>
+            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartRulePerf"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">SLA compliance rate</div><div class="card-sub">14-day trend against 95% target</div></div>
+            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartSlaTrend"></canvas></div>
+          </div>
+        </div>
+        <div class="chart-grid">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Conversion leaderboard</div><div class="card-sub">Top counsellors by lead-to-admit conversion</div></div>
+            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartLeaderboard"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Team load distribution</div><div class="card-sub">Active leads vs remaining capacity</div></div>
+            <div class="chart-box tall" style="padding:0 20px 18px;"><canvas id="chartTeamLoad"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INTEGRATIONS ============ -->
+      <section class="view" id="view-integrations">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Integrations</h1>
+            <p class="view-sub">Lead sources connected to the routing engine</p>
+          </div>
+          <div class="view-actions"><button class="btn btn-primary"><svg class="icon"><use href="#ic-plus"/></svg>Connect source</button></div>
+        </div>
+        <div class="int-grid" id="intGrid"></div>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section class="view" id="view-settings">
+        <div class="view-header">
+          <div>
+            <h1 class="view-title">Settings</h1>
+            <p class="view-sub">Institute profile, SLA thresholds and routing behaviour</p>
+          </div>
+          <div class="view-actions"><button class="btn btn-primary"><svg class="icon"><use href="#ic-check"/></svg>Save changes</button></div>
+        </div>
+        <div class="settings-grid">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Institute profile</div></div>
+            <div class="card-body">
+              <div class="settings-row"><div><div class="settings-label">Organization</div><div class="settings-desc">Shown on lead confirmation messages</div></div><input class="mini-input" style="width:220px; font-family:var(--font-body);" value="Global Institute Group"></div>
+              <div class="settings-row"><div><div class="settings-label">Timezone</div><div class="settings-desc">Used for SLA and business-hour rules</div></div><input class="mini-input" style="width:150px" value="Asia/Kolkata"></div>
+              <div class="settings-row"><div><div class="settings-label">Business hours</div><div class="settings-desc">Outside these hours, after-hours rules apply</div></div><input class="mini-input" value="09:00–19:00"></div>
+              <div class="settings-row"><div><div class="settings-label">Working days</div><div class="settings-desc">Mon–Sat counsellor availability</div></div><input class="mini-input" style="width:140px" value="Mon – Sat"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">SLA thresholds</div></div>
+            <div class="card-body">
+              <div class="settings-row"><div><div class="settings-label">First response SLA</div><div class="settings-desc">Time allowed before a lead is "at risk"</div></div><input class="mini-input" value="15 min"></div>
+              <div class="settings-row"><div><div class="settings-label">Assignment SLA</div><div class="settings-desc">Time allowed to auto-assign a lead</div></div><input class="mini-input" value="5 min"></div>
+              <div class="settings-row"><div><div class="settings-label">Escalation trigger</div><div class="settings-desc">Overdue time before escalating to team lead</div></div><input class="mini-input" value="30 min"></div>
+              <div class="settings-row"><div><div class="settings-label">Auto-reassign on breach</div><div class="settings-desc">Move breached leads to the next available counsellor</div></div><button class="switch on"></button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Notifications</div></div>
+            <div class="card-body">
+              <div class="settings-row"><div><div class="settings-label">Daily email digest</div><div class="settings-desc">Summary sent to administrators at 6pm IST</div></div><button class="switch on"></button></div>
+              <div class="settings-row"><div><div class="settings-label">SMS on SLA breach</div><div class="settings-desc">Alert the assigned counsellor and team lead</div></div><button class="switch on"></button></div>
+              <div class="settings-row"><div><div class="settings-label">Slack routing alerts</div><div class="settings-desc">Post every assignment to #lead-routing</div></div><button class="switch"></button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Roles &amp; access</div></div>
+            <div class="table-wrap">
+              <table class="roles-table">
+                <thead><tr><th>Role</th><th>Rules</th><th>Counsellors</th><th>Analytics</th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-name">Administrator</td><td>Full access</td><td>Full access</td><td>Full access</td></tr>
+                  <tr><td class="cell-name">Team lead</td><td>View &amp; simulate</td><td>Manage own team</td><td>Team only</td></tr>
+                  <tr><td class="cell-name">Counsellor</td><td>View only</td><td>Own profile</td><td>Own stats</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+/* ================= DATA ================= */
+const counsellors = [
+  {name:"Priya Sharma", team:"MBA Team", active:32, cap:40, resp:"3m 40s", conv:34, lang:["English","Hindi"], status:"Available", av:"a1"},
+  {name:"Amit Sharma", team:"MBA Team", active:48, cap:50, resp:"6m 10s", conv:29, lang:["English","Hindi","Punjabi"], status:"Near Capacity", av:"a2"},
+  {name:"Rahul Deshmukh", team:"Engineering Team", active:28, cap:50, resp:"2m 55s", conv:31, lang:["English","Marathi"], status:"Available", av:"a3"},
+  {name:"Neha Kulkarni", team:"MBA Team", active:40, cap:40, resp:"8m 02s", conv:37, lang:["English","Marathi","Hindi"], status:"At Capacity", av:"a4"},
+  {name:"Sanjay Verma", team:"Engineering Team", active:35, cap:45, resp:"4m 12s", conv:26, lang:["English","Hindi"], status:"Available", av:"a5"},
+  {name:"Ananya Iyer", team:"Undergraduate Team", active:44, cap:45, resp:"5m 30s", conv:33, lang:["English","Tamil","Hindi"], status:"Near Capacity", av:"a6"},
+  {name:"Vikram Rao", team:"Executive Programs", active:15, cap:25, resp:"9m 45s", conv:41, lang:["English"], status:"Available", av:"a1"},
+  {name:"Fatima Sheikh", team:"International Admissions", active:22, cap:30, resp:"4m 55s", conv:38, lang:["English","Hindi","Arabic"], status:"Available", av:"a2"},
+  {name:"Karan Mehta", team:"Undergraduate Team", active:12, cap:40, resp:"—", conv:22, lang:["English","Hindi"], status:"On Leave", av:"a3"},
+  {name:"Divya Menon", team:"Night Shift Pool", active:18, cap:35, resp:"5m 05s", conv:24, lang:["English","Hindi","Malayalam"], status:"Available", av:"a5"},
+];
+
+const rules = [
+  {p:1, name:"International Fee-Paying Leads", cond:[["source","=","Education Fair"],["budget","=","High"],["course","=","Executive MBA"]], team:"Executive Programs", dist:"Round robin", matches:210, active:true, catch:false},
+  {p:2, name:"MBA · Facebook High-Intent", cond:[["source","=","Facebook Ads"],["course","=","MBA"],["form","=","Detailed Inquiry"]], team:"MBA Team", dist:"Weighted by conversion", matches:1580, active:true, catch:false},
+  {p:3, name:"Engineering · Website Leads", cond:[["course","IN","(B.Tech CSE, B.Tech Mechanical)"],["source","=","Website Organic"]], team:"Engineering Team", dist:"Round robin", matches:1240, active:true, catch:false},
+  {p:4, name:"Marathi-Speaking · Pune", cond:[["city","=","Pune"],["language","=","Marathi"]], team:"Skill match", dist:"Language routing", matches:460, active:true, catch:false},
+  {p:5, name:"Diploma & Walk-in", cond:[["source","=","Walk-in"]], team:"Nearest branch", dist:"Proximity", matches:610, active:true, catch:false},
+  {p:6, name:"After-Hours Auto Queue", cond:[["time","NOT IN","business hours"]], team:"Night Shift Pool", dist:"Round robin", matches:340, active:true, catch:false},
+  {p:7, name:"LinkedIn Executive Pilot", cond:[["source","=","LinkedIn"],["course","=","Executive MBA"]], team:"Vikram Rao", dist:"Direct assign", matches:0, active:false, catch:false},
+  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Least-loaded, any team", dist:"Global round robin", matches:170, active:true, catch:true},
+];
+
+const activity = [
+  {t:"2 min ago", lead:"LD-48213 · Ananya Gupta", rule:"MBA · Facebook High-Intent", to:"Priya Sharma", icon:"ic-check", cls:"i-success"},
+  {t:"4 min ago", lead:"LD-48212 · Rohan Iyer", rule:"Engineering · Website Leads", to:"Rahul Deshmukh", icon:"ic-check", cls:"i-success"},
+  {t:"6 min ago", lead:"LD-48210 · Meera Joshi", rule:"Marathi-Speaking · Pune", to:"Rahul Deshmukh", icon:"ic-check", cls:"i-success"},
+  {t:"9 min ago", lead:"LD-48207 · Aarav Shah", rule:"SLA escalation", to:"Team Lead, MBA", icon:"ic-alert", cls:"i-warning"},
+  {t:"12 min ago", lead:"LD-48201 · Sara Fernandes", rule:"Default Round Robin", to:"Divya Menon", icon:"ic-check", cls:"i-success"},
+  {t:"15 min ago", lead:"LD-48196 · Kabir Malhotra", rule:"After-Hours Auto Queue", to:"Night Shift Pool", icon:"ic-check", cls:"i-success"},
+];
+
+const alerts = [
+  {name:"LD-48188 · Ibrahim Sheikh", meta:"MBA · Facebook Ads · overdue 22 min", av:"Amit Sharma"},
+  {name:"LD-48174 · Tanvi Kulkarni", meta:"B.Tech CSE · Website · overdue 18 min", av:"Sanjay Verma"},
+  {name:"LD-48169 · Priyanka Nair", meta:"Executive MBA · Referral · overdue 14 min", av:"Vikram Rao"},
+];
+
+const historyRows = [
+  {id:"LD-48213", name:"Ananya Gupta", source:"Facebook Ads", course:"MBA", rule:"MBA · Facebook High-Intent", to:"Priya Sharma", time:"09:14 AM", sla:"Met", outcome:"Contacted"},
+  {id:"LD-48212", name:"Rohan Iyer", source:"Website Organic", course:"B.Tech CSE", rule:"Engineering · Website Leads", to:"Rahul Deshmukh", time:"09:12 AM", sla:"Met", outcome:"Converted"},
+  {id:"LD-48210", name:"Meera Joshi", source:"Education Fair", course:"BBA", rule:"Marathi-Speaking · Pune", to:"Rahul Deshmukh", time:"09:08 AM", sla:"Met", outcome:"In Progress"},
+  {id:"LD-48207", name:"Aarav Shah", source:"Facebook Ads", course:"MBA", rule:"MBA · Facebook High-Intent", to:"Amit Sharma", time:"08:59 AM", sla:"Breached", outcome:"In Progress"},
+  {id:"LD-48201", name:"Sara Fernandes", source:"LinkedIn", course:"PhD Programs", rule:"Default Round Robin", to:"Divya Menon", time:"08:52 AM", sla:"Met", outcome:"Contacted"},
+  {id:"LD-48196", name:"Kabir Malhotra", source:"Website Organic", course:"MCA", rule:"After-Hours Auto Queue", to:"Divya Menon", time:"08:41 AM", sla:"At Risk", outcome:"In Progress"},
+  {id:"LD-48188", name:"Ibrahim Sheikh", source:"Facebook Ads", course:"MBA", rule:"MBA · Facebook High-Intent", to:"Amit Sharma", time:"08:33 AM", sla:"Breached", outcome:"Lost"},
+  {id:"LD-48174", name:"Tanvi Kulkarni", source:"Website Organic", course:"B.Tech CSE", rule:"Engineering · Website Leads", to:"Sanjay Verma", time:"08:20 AM", sla:"Breached", outcome:"In Progress"},
+  {id:"LD-48169", name:"Priyanka Nair", source:"Referral", course:"Executive MBA", rule:"International Fee-Paying Leads", to:"Vikram Rao", time:"08:11 AM", sla:"At Risk", outcome:"Contacted"},
+  {id:"LD-48155", name:"Devika Pillai", source:"Instagram", course:"Diploma in Design", rule:"Default Round Robin", to:"Karan Mehta", time:"07:58 AM", sla:"Met", outcome:"Converted"},
+  {id:"LD-48141", name:"Yusuf Khan", source:"Education Fair", course:"Executive MBA", rule:"International Fee-Paying Leads", to:"Fatima Sheikh", time:"07:44 AM", sla:"Met", outcome:"Converted"},
+  {id:"LD-48130", name:"Isha Reddy", source:"Google Ads", course:"MBA", rule:"MBA · Facebook High-Intent", to:"Neha Kulkarni", time:"07:30 AM", sla:"Met", outcome:"Contacted"},
+];
+
+const integrations = [
+  {name:"Facebook Lead Ads", desc:"Instant sync of lead-form submissions", connected:true, sync:"Synced 2 min ago", icon:"ic-inbox", cls:"i-accent"},
+  {name:"Google Ads Lead Forms", desc:"Search &amp; display campaign leads", connected:true, sync:"Synced 4 min ago", icon:"ic-target", cls:"i-info"},
+  {name:"Website Enquiry Forms", desc:"API webhook from the admissions site", connected:true, sync:"Synced 1 min ago", icon:"ic-plug", cls:"i-success"},
+  {name:"WhatsApp Business", desc:"Leads from click-to-chat campaigns", connected:true, sync:"Synced 6 min ago", icon:"ic-bell", cls:"i-success"},
+  {name:"Education Fair App", desc:"Offline scans synced after each event", connected:true, sync:"Synced 3 hr ago", icon:"ic-users", cls:"i-warning"},
+  {name:"Referral Portal", desc:"Alumni &amp; student referral submissions", connected:true, sync:"Synced 11 min ago", icon:"ic-history", cls:"i-info"},
+  {name:"Zapier", desc:"Route leads from 6,000+ connected apps", connected:false, sync:"Not connected", icon:"ic-zap", cls:"i-critical"},
+];
+
+/* ================= RENDER HELPERS ================= */
+function statusChip(status){
+  const map = {"Available":"chip-success","Near Capacity":"chip-warning","At Capacity":"chip-critical","On Leave":"chip-neutral"};
+  return `<span class="chip ${map[status]||'chip-neutral'}"><span class="dot"></span>${status}</span>`;
+}
+function utilBar(active,cap){
+  const pct = Math.round(active/cap*100);
+  const cls = pct>=95?'crit':pct>=85?'warn':'';
+  return `<div class="util"><div class="util-track"><div class="util-fill ${cls}" style="width:${pct}%"></div></div><span class="util-num tabular">${pct}%</span></div>`;
+}
+function avatarInit(name,cls){
+  const initials = name.split(" ").map(s=>s[0]).slice(0,2).join("");
+  return `<div class="avatar-sm ${cls}">${initials}</div>`;
+}
+function condText(cond){
+  return cond.map(c=>{
+    if(c[0]==="else") return "no earlier rule matched";
+    return `${c[0]} <b>${c[1]}</b> ${c[2]}`;
+  }).join(' <span class="kw">AND</span> ');
+}
+
+/* dashboard capacity (top 3, matches reference) */
+function renderDashCapacity(){
+  const top = counsellors.slice(0,3);
+  document.getElementById('dashCapacityBody').innerHTML = top.map(c=>`
+    <tr>
+      <td><div class="person">${avatarInit(c.name,c.av)}<div><div class="cell-name">${c.name}</div></div></div></td>
+      <td>${c.team}</td>
+      <td class="tabular">${c.active}</td>
+      <td>${utilBar(c.active,c.cap)}</td>
+      <td>${statusChip(c.status)}</td>
+    </tr>`).join('');
+}
+
+function renderDashFeed(){
+  document.getElementById('dashFeed').innerHTML = activity.map(a=>`
+    <div class="feed-item">
+      <div class="feed-icon ${a.cls}" style="background:var(--${a.cls==='i-success'?'success':'warning'}-soft); color:var(--${a.cls==='i-success'?'success':'warning'})"><svg class="icon icon-sm"><use href="#${a.icon}"/></svg></div>
+      <div class="feed-text"><span class="mono">${a.lead.split(' · ')[0]}</span> <b>${a.lead.split(' · ')[1]}</b> matched <b>${a.rule}</b> → routed to <b>${a.to}</b></div>
+      <div class="feed-time">${a.t}</div>
+    </div>`).join('');
+}
+
+function renderDashRules(){
+  const top = rules.filter(r=>r.active).sort((a,b)=>b.matches-a.matches).slice(0,4);
+  document.getElementById('dashRules').innerHTML = top.map(r=>`
+    <div class="mini-rule">
+      <div class="rule-rank">${r.p}</div>
+      <div style="flex:1; min-width:0;">
+        <div class="mini-rule-name">${r.name}</div>
+        <div class="mini-rule-meta">${r.team}</div>
+      </div>
+      <div class="tabular" style="font-weight:700; font-family:var(--font-mono); font-size:12.5px;">${r.matches.toLocaleString()}</div>
+    </div>`).join('');
+}
+
+function renderDashAlerts(){
+  document.getElementById('dashAlerts').innerHTML = alerts.map(a=>`
+    <div class="alert-row">
+      <span class="alert-dot"></span>
+      <div style="flex:1; min-width:0;"><div class="alert-name">${a.name}</div><div class="alert-meta">${a.meta}</div></div>
+      <button class="btn btn-sm">Reassign</button>
+    </div>`).join('');
+}
+
+/* rules view */
+function renderRules(){
+  document.getElementById('rulesList').innerHTML = rules.map(r=>`
+    <div class="rule-card ${r.active?'':'paused'}">
+      <span class="grip"><svg class="icon"><use href="#ic-grip"/></svg></span>
+      <div class="rule-priority ${r.catch?'catch':''}">${r.catch?'—':r.p}</div>
+      <div class="rule-main">
+        <div class="rule-top">
+          <span class="rule-name">${r.name}</span>
+          ${r.catch?'<span class="badge-catch">Catch-all</span>':''}
+          ${!r.active?'<span class="chip chip-neutral"><span class="dot"></span>Paused</span>':''}
+        </div>
+        <div class="code-pill"><span class="kw">IF</span> ${condText(r.cond)} <span class="kw">THEN</span> assign to <b>${r.team}</b></div>
+        <div class="rule-stats">
+          <div class="rule-stat">Distribution: <b style="font-family:var(--font-body); font-weight:600; color:var(--ink-soft);">${r.dist}</b></div>
+          <div class="rule-stat">Matches today: <b>${r.matches.toLocaleString()}</b></div>
+        </div>
+      </div>
+      <div class="rule-side">
+        <button class="switch ${r.active?'on':''}" onclick="this.classList.toggle('on')"></button>
+        <button class="icon-btn"><svg class="icon icon-sm"><use href="#ic-edit"/></svg></button>
+        <button class="icon-btn"><svg class="icon icon-sm"><use href="#ic-copy"/></svg></button>
+      </div>
+    </div>`).join('');
+}
+
+/* counsellors view */
+let teamFilterVal = 'all';
+function renderCounsellors(){
+  const q = (document.getElementById('counsellorSearch').value||'').toLowerCase();
+  const rows = counsellors.filter(c=> (teamFilterVal==='all'||c.team===teamFilterVal) && c.name.toLowerCase().includes(q));
+  document.getElementById('counsellorsBody').innerHTML = rows.length ? rows.map(c=>`
+    <tr>
+      <td><div class="person">${avatarInit(c.name,c.av)}<div><div class="cell-name">${c.name}</div></div></div></td>
+      <td>${c.team}</td>
+      <td class="tabular">${c.active} / ${c.cap}</td>
+      <td>${utilBar(c.active,c.cap)}</td>
+      <td class="tabular">${c.resp}</td>
+      <td class="tabular">${c.conv}%</td>
+      <td style="color:var(--ink-soft); font-size:12px;">${c.lang.join(', ')}</td>
+      <td>${statusChip(c.status)}</td>
+    </tr>`).join('') : `<tr><td colspan="8" class="empty-note">No counsellors match your filters.</td></tr>`;
+}
+
+/* history view */
+let historyFilterVal = 'all';
+function slaChip(s){
+  const map={"Met":"chip-success","At Risk":"chip-warning","Breached":"chip-critical"};
+  return `<span class="chip ${map[s]}"><span class="dot"></span>${s}</span>`;
+}
+function outcomeChip(o){
+  const map={"Converted":"chip-success","In Progress":"chip-info","Contacted":"chip-neutral","Lost":"chip-critical"};
+  return `<span class="chip ${map[o]}"><span class="dot"></span>${o}</span>`;
+}
+function renderHistory(){
+  const q = (document.getElementById('historySearch').value||'').toLowerCase();
+  const rows = historyRows.filter(r => (historyFilterVal==='all'||r.sla===historyFilterVal) &&
+    (r.name.toLowerCase().includes(q)||r.rule.toLowerCase().includes(q)||r.to.toLowerCase().includes(q)||r.id.toLowerCase().includes(q)));
+  document.getElementById('historyBody').innerHTML = rows.length ? rows.map(r=>`
+    <tr>
+      <td><div class="cell-name">${r.name}</div><div class="cell-sub mono" style="font-family:var(--font-mono)">${r.id}</div></td>
+      <td>${r.source}</td>
+      <td>${r.course}</td>
+      <td style="max-width:210px;">${r.rule}</td>
+      <td>${r.to}</td>
+      <td class="tabular">${r.time}</td>
+      <td>${slaChip(r.sla)}</td>
+      <td>${outcomeChip(r.outcome)}</td>
+    </tr>`).join('') : `<tr><td colspan="8" class="empty-note">No assignments match your filters.</td></tr>`;
+}
+
+/* integrations */
+function renderIntegrations(){
+  document.getElementById('intGrid').innerHTML = integrations.map(i=>`
+    <div class="card int-card">
+      <div class="int-top">
+        <div class="int-icon ${i.cls}" style="background:var(--${i.cls.replace('i-','')}-soft); color:var(--${i.cls.replace('i-','')})"><svg class="icon"><use href="#${i.icon}"/></svg></div>
+        <div><div class="int-name">${i.name}</div></div>
+      </div>
+      <div class="int-desc">${i.desc}</div>
+      <div class="int-foot">
+        ${i.connected?'<span class="chip chip-success"><span class="dot"></span>Connected</span>':'<span class="chip chip-neutral"><span class="dot"></span>Not connected</span>'}
+        <button class="btn btn-sm">${i.connected?'Configure':'Connect'}</button>
+      </div>
+      <div class="int-sync">${i.sync}</div>
+    </div>`).join('');
+}
+
+/* ================= NAV ================= */
+function goTo(view){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
+}
+document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click', ()=>goTo(b.dataset.view)));
+document.getElementById('menuBtn').addEventListener('click', ()=>document.getElementById('sidebar').classList.toggle('open'));
+
+document.getElementById('teamFilter').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  document.querySelectorAll('#teamFilter .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); teamFilterVal = btn.dataset.team; renderCounsellors();
+});
+document.getElementById('counsellorSearch').addEventListener('input', renderCounsellors);
+
+document.getElementById('historyFilter').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  document.querySelectorAll('#historyFilter .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); historyFilterVal = btn.dataset.status; renderHistory();
+});
+document.getElementById('historySearch').addEventListener('input', renderHistory);
+
+document.getElementById('simHours').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#simHours button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+});
+
+/* ================= SIMULATOR ================= */
+function runSimulation(){
+  const src = document.getElementById('simSource').value;
+  const course = document.getElementById('simCourse').value;
+  const city = document.getElementById('simCity').value;
+  const budget = document.getElementById('simBudget').value;
+  const lang = document.getElementById('simLang').value;
+  const inHours = document.querySelector('#simHours button.on').dataset.v === 'in';
+
+  const evalRules = [
+    {p:1, name:"International Fee-Paying Leads", team:"Executive Programs", test:()=> src==="Education Fair" && budget==="High" && course==="Executive MBA", label:"source = Education Fair, budget = High, program = Executive MBA"},
+    {p:2, name:"MBA · Facebook High-Intent", team:"MBA Team", test:()=> src==="Facebook Ads" && course==="MBA", label:"source = Facebook Ads, program = MBA"},
+    {p:3, name:"Engineering · Website Leads", team:"Engineering Team", test:()=> (course==="B.Tech CSE"||course==="B.Tech Mechanical") && src==="Website Organic", label:"program is B.Tech, source = Website Organic"},
+    {p:4, name:"Marathi-Speaking · Pune", team:"MBA Team", test:()=> city==="Pune" && lang==="Marathi", label:"city = Pune, language = Marathi"},
+    {p:5, name:"Diploma & Walk-in", team:"Undergraduate Team", test:()=> src==="Walk-in", label:"source = Walk-in"},
+    {p:6, name:"After-Hours Auto Queue", team:"Night Shift Pool", test:()=> !inHours, label:"submitted outside business hours"},
+    {p:8, name:"Default Round Robin", team:"Least-loaded, any team", test:()=> true, label:"no earlier rule matched", isCatch:true},
+  ];
+
+  let winner = null;
+  const traceHtml = evalRules.map(r=>{
+    const passed = winner===null && r.test();
+    if(passed) winner = r;
+    const state = winner===r ? 'win' : (r.test() && winner!==r ? 'pass' : 'fail');
+    const icon = winner===r ? 'ic-check' : (r.test() ? 'ic-check' : 'ic-x');
+    const shownState = winner===r ? 'win' : (r.test() ? 'pass' : 'fail');
+    return `<div class="trace-row">
+      <div class="trace-mark ${shownState}"><svg class="icon icon-sm"><use href="#${r.test()?'ic-check':'ic-x'}"/></svg></div>
+      <div style="flex:1; min-width:0;">
+        <div class="trace-title">Priority ${r.p} · ${r.name}${winner===r?' — matched':''}</div>
+        <div class="trace-reason">${r.label}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('simTrace').innerHTML = traceHtml;
+
+  // candidate scoring within winning team
+  const teamMembers = winner.team.includes('Team')||winner.team==='Night Shift Pool'
+    ? counsellors.filter(c=>c.team===winner.team)
+    : (winner.team==='Executive Programs' ? counsellors.filter(c=>c.team==='Executive Programs') :
+       winner.team==='Least-loaded, any team' ? counsellors.slice() : counsellors.filter(c=>c.team===winner.team));
+
+  const pool = teamMembers.length ? teamMembers : counsellors;
+  const scored = pool.map(c=>{
+    const util = c.active/c.cap;
+    const eligible = c.status!=='On Leave';
+    let score = (1-util)*65 + c.conv*0.7 + (c.lang.includes(lang)?12:0);
+    if(!eligible) score = 0;
+    return {...c, score:Math.max(0,Math.round(score))};
+  }).sort((a,b)=>b.score-a.score);
+
+  const best = scored[0];
+  document.getElementById('simResult').innerHTML = `
+    <div class="result-top">
+      ${avatarInit(best.name, best.av)}
+      <div>
+        <div class="result-label">Assigned to</div>
+        <div style="font-size:16px; font-weight:700; font-family:var(--font-display);">${best.name}</div>
+        <div style="font-size:12px; color:var(--ink-soft);">${best.team} · via <b>${winner.name}</b> (priority ${winner.p})</div>
+      </div>
+    </div>`;
+
+  document.getElementById('simCandidates').innerHTML = scored.slice(0,3).map(c=>`
+    <div class="candidate-row">
+      <div class="candidate-name">${c.name}</div>
+      <div class="candidate-track"><div class="candidate-fill" style="width:${c.score}%"></div></div>
+      <div class="candidate-score tabular">${c.score}</div>
+    </div>`).join('');
+}
+
+/* ================= CHARTS ================= */
+let chartInstances = {};
+function theme(){
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    ink: cs.getPropertyValue('--ink').trim(),
+    inkSoft: cs.getPropertyValue('--ink-soft').trim(),
+    inkFaint: cs.getPropertyValue('--ink-faint').trim(),
+    border: cs.getPropertyValue('--border').trim(),
+    accent: cs.getPropertyValue('--accent').trim(),
+    success: cs.getPropertyValue('--success').trim(),
+    warning: cs.getPropertyValue('--warning').trim(),
+    critical: cs.getPropertyValue('--critical').trim(),
+    info: cs.getPropertyValue('--info').trim(),
+    surface: cs.getPropertyValue('--surface').trim(),
+  };
+}
+function destroyAll(){ Object.values(chartInstances).forEach(c=>c.destroy()); chartInstances={}; }
+
+function buildCharts(){
+  if(typeof Chart === 'undefined'){ return; }
+  destroyAll();
+  const t = theme();
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.font.size = 11.5;
+  Chart.defaults.color = t.inkSoft;
+
+  const days14 = ["Aug 21","Aug 22","Aug 23","Aug 24","Aug 25","Aug 26","Aug 27","Aug 28","Aug 29","Aug 30","Aug 31","Sep 1","Sep 2","Sep 3"];
+  const leadsRecv = [3800,4020,3950,4300,4550,4700,4100,3900,4250,4480,4600,4750,4900,4820];
+  const leadsAsn  = [3610,3860,3790,4120,4360,4520,3930,3720,4080,4300,4430,4570,4700,4610];
+
+  chartInstances.trend = new Chart(document.getElementById('chartTrend'), {
+    type:'line',
+    data:{labels:days14, datasets:[
+      {label:'Leads received', data:leadsRecv, borderColor:t.accent, backgroundColor:hexA(t.accent,0.14), fill:true, tension:.35, pointRadius:0, borderWidth:2.4},
+      {label:'Leads assigned', data:leadsAsn, borderColor:t.success, backgroundColor:hexA(t.success,0.10), fill:true, tension:.35, pointRadius:0, borderWidth:2.4},
+    ]},
+    options:{plugins:{legend:{display:false}}, scales:{
+      x:{grid:{display:false}, ticks:{color:t.inkFaint}},
+      y:{grid:{color:t.border}, ticks:{color:t.inkFaint}, beginAtZero:false}
+    }, interaction:{mode:'index', intersect:false}}
+  });
+
+  chartInstances.sourceMini = new Chart(document.getElementById('chartSourceMini'), {
+    type:'doughnut',
+    data:{labels:['Facebook Ads','Website Organic','Google Ads','Referral','Education Fair','Instagram','Walk-in','LinkedIn'],
+      datasets:[{data:[34,22,18,10,7,5,3,1], backgroundColor:[t.accent,t.success,t.info,t.warning,'#B48CE8',t.critical,t.inkFaint,'#7CC6D9'], borderWidth:0}]},
+    options:{cutout:'68%', plugins:{legend:{display:false}}}
+  });
+  chartInstances.sourceFull = new Chart(document.getElementById('chartSourceFull'), {
+    type:'doughnut',
+    data:{labels:['Facebook Ads','Website Organic','Google Ads','Referral','Education Fair','Instagram','Walk-in','LinkedIn'],
+      datasets:[{data:[34,22,18,10,7,5,3,1], backgroundColor:[t.accent,t.success,t.info,t.warning,'#B48CE8',t.critical,t.inkFaint,'#7CC6D9'], borderWidth:0}]},
+    options:{cutout:'62%', plugins:{legend:{position:'right', labels:{color:t.inkSoft, boxWidth:10, padding:12}}}}
+  });
+
+  const days30 = Array.from({length:30},(_,i)=> 'Aug '+(i+5>31? '': (i+5)));
+  const timeTrend = [95,92,90,88,85,84,80,78,76,75,73,70,68,66,65,63,61,60,58,57,56,55,54,53,51,50,49,48,47,47];
+  chartInstances.timeTrend = new Chart(document.getElementById('chartTimeTrend'), {
+    type:'line',
+    data:{labels:days30.map((_,i)=>i+1), datasets:[{data:timeTrend, borderColor:t.info, backgroundColor:hexA(t.info,0.12), fill:true, tension:.3, pointRadius:0, borderWidth:2.2}]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{maxTicksLimit:8, color:t.inkFaint}}, y:{grid:{color:t.border}, ticks:{color:t.inkFaint, callback:v=>v+'s'}}}}
+  });
+
+  const ruleNames = rules.map(r=>r.name);
+  const ruleMatches = rules.map(r=>r.matches);
+  chartInstances.rulePerf = new Chart(document.getElementById('chartRulePerf'), {
+    type:'bar',
+    data:{labels:ruleNames, datasets:[{data:ruleMatches, backgroundColor:t.accent, borderRadius:5, maxBarThickness:16}]},
+    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:t.border}, ticks:{color:t.inkFaint}}, y:{grid:{display:false}, ticks:{color:t.inkSoft}}}}
+  });
+
+  const sla14 = [93.1,92.4,94.0,95.2,96.1,94.8,93.5,92.9,94.4,95.6,96.2,95.1,94.6,94.2];
+  chartInstances.slaTrend = new Chart(document.getElementById('chartSlaTrend'), {
+    type:'line',
+    data:{labels:days14, datasets:[
+      {label:'SLA %', data:sla14, borderColor:t.success, backgroundColor:hexA(t.success,0.12), fill:true, tension:.3, pointRadius:0, borderWidth:2.2},
+      {label:'Target', data:days14.map(()=>95), borderColor:t.inkFaint, borderDash:[5,5], pointRadius:0, borderWidth:1.4, fill:false}
+    ]},
+    options:{plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}, ticks:{color:t.inkFaint}}, y:{grid:{color:t.border}, ticks:{color:t.inkFaint, callback:v=>v+'%'}, suggestedMin:88, suggestedMax:100}}}
+  });
+
+  const lead = counsellors.slice().sort((a,b)=>b.conv-a.conv).slice(0,8);
+  chartInstances.leaderboard = new Chart(document.getElementById('chartLeaderboard'), {
+    type:'bar',
+    data:{labels:lead.map(c=>c.name), datasets:[{data:lead.map(c=>c.conv), backgroundColor:t.success, borderRadius:5, maxBarThickness:16}]},
+    options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{grid:{color:t.border}, ticks:{color:t.inkFaint, callback:v=>v+'%'}}, y:{grid:{display:false}, ticks:{color:t.inkSoft}}}}
+  });
+
+  const teams = ["MBA Team","Engineering Team","Undergraduate Team","Executive Programs","International Admissions","Night Shift Pool"];
+  const teamActive = teams.map(tm=> counsellors.filter(c=>c.team===tm).reduce((s,c)=>s+c.active,0));
+  const teamCap = teams.map(tm=> counsellors.filter(c=>c.team===tm).reduce((s,c)=>s+c.cap,0));
+  const teamRemain = teamCap.map((c,i)=>c-teamActive[i]);
+  chartInstances.teamLoad = new Chart(document.getElementById('chartTeamLoad'), {
+    type:'bar',
+    data:{labels:teams, datasets:[
+      {label:'Active leads', data:teamActive, backgroundColor:t.accent, borderRadius:5, maxBarThickness:20},
+      {label:'Remaining capacity', data:teamRemain, backgroundColor:t.border, borderRadius:5, maxBarThickness:20},
+    ]},
+    options:{indexAxis:'y', plugins:{legend:{display:true, position:'bottom', labels:{color:t.inkSoft, boxWidth:10}}}, scales:{x:{stacked:true, grid:{color:t.border}, ticks:{color:t.inkFaint}}, y:{stacked:true, grid:{display:false}, ticks:{color:t.inkSoft}}}}
+  });
+}
+function hexA(hex, a){
+  hex = hex.trim();
+  if(hex.startsWith('#')){
+    const n = hex.replace('#','');
+    const bigint = parseInt(n.length===3? n.split('').map(c=>c+c).join(''): n, 16);
+    const r=(bigint>>16)&255, g=(bigint>>8)&255, b=bigint&255;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+  return hex;
+}
+
+/* ================= INIT ================= */
+renderDashCapacity(); renderDashFeed(); renderDashRules(); renderDashAlerts();
+renderRules(); renderCounsellors(); renderHistory(); renderIntegrations();
+runSimulation();
+try{ buildCharts(); }catch(e){ console.error('Chart rendering unavailable:', e); }
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
+  setTimeout(()=>{ try{ buildCharts(); }catch(e){} }, 60);
+});
+</script>
