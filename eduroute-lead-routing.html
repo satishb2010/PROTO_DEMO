@@ -457,6 +457,13 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 }
 .condition-join:hover{border-color:var(--accent-line); color:var(--accent);}
 .condition-join[data-op="OR"]{background:var(--accent-soft); color:var(--accent); border-color:var(--accent-line);}
+.condition-row .assign-picker{min-width:0;}
+.condition-value-picker.disabled{opacity:.45; pointer-events:none;}
+.day-picker{display:flex; gap:6px; flex-wrap:wrap;}
+.schedule-block{display:flex; flex-direction:column; gap:9px;}
+.hours-range{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft);}
+.shift-list{display:flex; flex-direction:column; gap:8px; padding:14px 0 4px;}
+.shift-row{display:flex; align-items:center; gap:10px;}
 .manual-add-condition{margin-top:8px; padding:5px 9px; font-size:11.5px;}
 .manual-priority{display:flex; align-items:center; gap:10px;}
 .manual-priority input[type=range]{min-width:0;}
@@ -763,12 +770,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
             <h1 class="view-title">AI Rule Builder</h1>
             <p class="view-sub">Describe how leads should be routed in plain English, or add a rule manually</p>
           </div>
+          <div class="view-actions"><div class="seg" id="builderMode" style="width:190px;"><button class="on" data-mode="ai">AI describe</button><button data-mode="manual">Add manually</button></div></div>
         </div>
         <div class="ai-grid" id="builderGrid">
           <div class="card">
             <div class="card-head">
               <div><div class="card-title" id="builderFormTitle">Describe your rule</div><div class="card-sub" id="builderModeSub">Try one of the examples or write your own</div></div>
-              <div class="seg" id="builderMode" style="width:190px; flex:none;"><button class="on" data-mode="ai">AI describe</button><button data-mode="manual">Add manually</button></div>
             </div>
             <div id="builderAiPanel">
               <div class="chat-pane">
@@ -790,17 +797,21 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                 <div class="field full"><label>Rule name</label><input type="text" id="manRuleName" value="Walk-in Priority Routing" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
                 <div class="field full"><label>Conditions</label>
                   <div class="condition-stack" id="manualConditions">
-                    <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option selected>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option selected>Walk-in</option><option>Facebook Ads</option><option>Google Ads</option><option>Website Organic</option><option>Referral</option><option>Education Fair</option><option>Instagram</option><option>LinkedIn</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                    <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option value="any">Any</option><option value="include" selected>Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker"><summary class="cv-summary">Walk-in</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All</label><label class="assign-option"><input type="checkbox" value="Facebook Ads"> Facebook Ads</label><label class="assign-option"><input type="checkbox" value="Google Ads"> Google Ads</label><label class="assign-option"><input type="checkbox" value="Website Organic"> Website Organic</label><label class="assign-option"><input type="checkbox" value="Referral"> Referral</label><label class="assign-option"><input type="checkbox" value="Education Fair"> Education Fair</label><label class="assign-option"><input type="checkbox" value="Instagram"> Instagram</label><label class="assign-option"><input type="checkbox" value="Walk-in" checked> Walk-in</label><label class="assign-option"><input type="checkbox" value="LinkedIn"> LinkedIn</label></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
                     <button type="button" class="condition-join" data-op="AND" title="Click to switch between AND / OR">AND</button>
-                    <div class="condition-row"><select class="condition-field"><option value="budget" selected>Budget tier</option><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option selected>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option selected>Premium</option><option>Standard</option><option>High</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                    <div class="condition-row"><select class="condition-field"><option value="budget" selected>Budget tier</option><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option value="any">Any</option><option value="include" selected>Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker"><summary class="cv-summary">Premium</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All</label><label class="assign-option"><input type="checkbox" value="Premium" checked> Premium</label><label class="assign-option"><input type="checkbox" value="Standard"> Standard</label><label class="assign-option"><input type="checkbox" value="High"> High</label></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
                   </div>
                   <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
                 </div>
-                <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
+                <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All counsellors</label><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
                 <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Skill Based</option><option>Least Loaded</option><option>Language routing</option><option>Priority Based</option></select></div>
                 <div class="field"><label>Fallback</label><select id="manFallback"><option value="false">Fallback Rule</option><option value="true">Stop here (catch-all)</option></select></div>
-                <div class="field"><label>Active hours</label><div class="seg" id="manualHours"><button class="on" type="button" data-v="all">All day</button><button type="button" data-v="business">Business hours only</button></div></div>
-                <div class="field full"><label>Priority <span class="manual-priority-value" id="manualPriorityValue">8 of 8</span></label><div class="manual-priority"><input type="range" id="manPriority" min="1" max="8" value="8"><span class="manual-priority-value">8</span></div></div>
+                <div class="field full"><label>Working schedule</label><div class="schedule-block">
+                    <div class="day-picker" id="manWorkingDays"><button type="button" class="pill active" data-day="Mon">Mon</button><button type="button" class="pill active" data-day="Tue">Tue</button><button type="button" class="pill active" data-day="Wed">Wed</button><button type="button" class="pill active" data-day="Thu">Thu</button><button type="button" class="pill active" data-day="Fri">Fri</button><button type="button" class="pill active" data-day="Sat">Sat</button><button type="button" class="pill" data-day="Sun">Sun</button></div>
+                    <div class="seg" id="manScheduleType"><button type="button" class="on" data-v="all">All day</button><button type="button" data-v="hours">Working hours</button><button type="button" data-v="shift">Shift-wise</button></div>
+                    <div class="hours-range" id="manHoursRow" style="display:none;"><input type="time" id="manHoursFrom" value="09:00"><span>to</span><input type="time" id="manHoursTo" value="19:00"></div>
+                    <select id="manShift" style="display:none;"><option>Morning (06:00–14:00)</option><option>Afternoon (14:00–22:00)</option><option>Night (22:00–06:00)</option></select>
+                  </div></div>
               </div>
               <div class="manual-actions"><button class="btn" type="button" onclick="goTo('simulator')"><svg class="icon"><use href="#ic-play"/></svg>Test in simulator</button><button class="btn btn-primary" type="button" id="manualSaveBtn"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button></div>
             </div>
@@ -816,13 +827,9 @@ input[type=range]{flex:1; accent-color:var(--accent);}
               <div class="kv-row"><span class="kv-label">Conditions</span><span class="kv-value">
                 <span class="code-pill" id="manualPreviewConditions"><span class="kw">IF</span> source <b>=</b> Instagram <span class="kw">AND</span> program <b>IN</b> (MBA, BBA)</span>
               </span></div>
-              <div class="kv-row"><span class="kv-label">Active hours</span><span class="kv-value" id="manualPreviewHours">All day</span></div>
+              <div class="kv-row"><span class="kv-label">Working schedule</span><span class="kv-value" id="manualPreviewHours">Mon, Tue, Wed, Thu, Fri, Sat · All day</span></div>
               <div class="kv-row"><span class="kv-label">Assign to</span><span class="kv-value" id="manualPreviewAssign">Priya Sharma, Neha Kulkarni</span></div>
               <div class="kv-row"><span class="kv-label">Distribution</span><span class="kv-value" id="manualPreviewDist">Round robin</span></div>
-              <div class="kv-row" style="display:block;">
-                <div style="display:flex; justify-content:space-between;"><span class="kv-label">Priority</span><span class="kv-value tabular" id="manualPreviewPriority">2 of 8</span></div>
-                <div class="slider-row"><input type="range" min="1" max="9" value="2"></div>
-              </div>
               <div class="kv-row"><span class="kv-label">Fallback</span><span class="kv-value" id="manualPreviewFallback">Fallback Rule</span></div>
               <div style="display:flex; gap:10px; margin-top:16px;">
                 <button class="btn" style="flex:1;" onclick="goTo('simulator')"><svg class="icon"><use href="#ic-play"/></svg>Test in simulator</button>
@@ -953,8 +960,15 @@ input[type=range]{flex:1; accent-color:var(--accent);}
             <div class="card-body">
               <div class="settings-row"><div><div class="settings-label">Organization</div><div class="settings-desc">Shown on lead confirmation messages</div></div><input class="mini-input" style="width:220px; font-family:var(--font-body);" value="Global Institute Group"></div>
               <div class="settings-row"><div><div class="settings-label">Timezone</div><div class="settings-desc">Used for SLA and business-hour rules</div></div><input class="mini-input" style="width:150px" value="Asia/Kolkata"></div>
-              <div class="settings-row"><div><div class="settings-label">Business hours</div><div class="settings-desc">Outside these hours, after-hours rules apply</div></div><input class="mini-input" value="09:00–19:00"></div>
-              <div class="settings-row"><div><div class="settings-label">Working days</div><div class="settings-desc">Mon–Sat counsellor availability</div></div><input class="mini-input" style="width:140px" value="Mon – Sat"></div>
+              <div class="settings-row" style="align-items:flex-start;"><div><div class="settings-label">Working days</div><div class="settings-desc">Days counsellors are available for assignment</div></div><div class="day-picker" id="settingsWorkingDays"><button type="button" class="pill active" data-day="Mon">Mon</button><button type="button" class="pill active" data-day="Tue">Tue</button><button type="button" class="pill active" data-day="Wed">Wed</button><button type="button" class="pill active" data-day="Thu">Thu</button><button type="button" class="pill active" data-day="Fri">Fri</button><button type="button" class="pill active" data-day="Sat">Sat</button><button type="button" class="pill" data-day="Sun">Sun</button></div></div>
+              <div class="settings-row"><div><div class="settings-label">Working hours</div><div class="settings-desc">Outside these hours, after-hours rules apply</div></div><div class="hours-range"><input type="time" class="mini-input" value="09:00"><span>to</span><input type="time" class="mini-input" value="19:00"></div></div>
+              <div class="settings-row"><div><div class="settings-label">Shift-wise working</div><div class="settings-desc">Route by shift instead of a single working-hours window</div></div><button class="switch" id="settingsShiftToggle"></button></div>
+              <div class="shift-list" id="settingsShiftList" style="display:none;">
+                <div class="shift-row"><input class="mini-input" style="width:110px; font-family:var(--font-body);" value="Morning"><div class="hours-range"><input type="time" class="mini-input" value="06:00"><span>to</span><input type="time" class="mini-input" value="14:00"></div><button class="condition-remove" type="button" aria-label="Remove shift"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                <div class="shift-row"><input class="mini-input" style="width:110px; font-family:var(--font-body);" value="Afternoon"><div class="hours-range"><input type="time" class="mini-input" value="14:00"><span>to</span><input type="time" class="mini-input" value="22:00"></div><button class="condition-remove" type="button" aria-label="Remove shift"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                <div class="shift-row"><input class="mini-input" style="width:110px; font-family:var(--font-body);" value="Night"><div class="hours-range"><input type="time" class="mini-input" value="22:00"><span>to</span><input type="time" class="mini-input" value="06:00"></div><button class="condition-remove" type="button" aria-label="Remove shift"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                <button class="btn manual-add-condition" type="button" id="addShiftBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add shift</button>
+              </div>
             </div>
           </div>
           <div class="card">
@@ -1243,41 +1257,92 @@ const manualConditionValues = {
   city: ['Pune','Mumbai','Bengaluru','Delhi NCR','Chennai','Hyderabad','Other'],
   language: ['English','Hindi','Marathi','Tamil','Other']
 };
-function refreshConditionValues(row){
-  const valueSelect = row.querySelector('.condition-value');
-  const values = manualConditionValues[row.querySelector('.condition-field').value] || [];
-  valueSelect.innerHTML = values.map(value=>`<option>${value}</option>`).join('');
+function conditionOpLabel(op){ return op==='any' ? 'Any' : op==='exclude' ? 'Excludes' : 'Include'; }
+function conditionRowValues(row){
+  return [...row.querySelectorAll('.condition-value-picker .assign-options input[type=checkbox]:not(.cv-all)')].filter(b=>b.checked).map(b=>b.value);
 }
-manualConditionRows().forEach(refreshConditionValues);
+function updateConditionValueSummary(row){
+  const picker = row.querySelector('.condition-value-picker');
+  const summary = picker.querySelector('.cv-summary');
+  const all = picker.querySelector('.cv-all');
+  const values = conditionRowValues(row);
+  summary.textContent = all.checked ? 'All values' : (values.length ? values.join(', ') : 'Select values');
+}
+function refreshConditionValues(row){
+  const values = manualConditionValues[row.querySelector('.condition-field').value] || [];
+  const optionsEl = row.querySelector('.condition-value-picker .assign-options');
+  optionsEl.innerHTML = `<label class="assign-option"><input type="checkbox" class="cv-all" checked> All</label>` +
+    values.map(v=>`<label class="assign-option"><input type="checkbox" value="${v}" checked> ${v}</label>`).join('');
+  updateConditionValueSummary(row);
+}
+manualConditionRows().forEach(row=>{
+  updateConditionValueSummary(row);
+  row.querySelector('.condition-value-picker').classList.toggle('disabled', row.querySelector('.condition-op').value === 'any');
+});
 document.getElementById('manualConditions').addEventListener('change', e=>{
-  if(e.target.classList.contains('condition-field')) refreshConditionValues(e.target.closest('.condition-row'));
+  if(e.target.classList.contains('condition-field')){
+    refreshConditionValues(e.target.closest('.condition-row'));
+    updateManualPreview();
+    return;
+  }
+  if(e.target.classList.contains('condition-op')){
+    const row = e.target.closest('.condition-row');
+    row.querySelector('.condition-value-picker').classList.toggle('disabled', e.target.value === 'any');
+    updateManualPreview();
+    return;
+  }
+  const picker = e.target.closest('.condition-value-picker');
+  if(picker){
+    const all = picker.querySelector('.cv-all');
+    const boxes = [...picker.querySelectorAll('.assign-options input[type=checkbox]:not(.cv-all)')];
+    if(e.target === all){
+      boxes.forEach(b=>b.checked = all.checked);
+    } else {
+      all.checked = boxes.length>0 && boxes.every(b=>b.checked);
+    }
+    updateConditionValueSummary(picker.closest('.condition-row'));
+    updateManualPreview();
+    return;
+  }
   updateManualPreview();
 });
 function updateManualPreview(){
   const conditions = manualConditionRows().map(row=>{
     const field = row.querySelector('.condition-field').selectedOptions[0].textContent;
-    const op = row.querySelector('.condition-op').value;
-    const value = row.querySelector('.condition-value').value;
+    const opRaw = row.querySelector('.condition-op').value;
+    const opLabel = conditionOpLabel(opRaw);
+    const values = conditionRowValues(row);
+    const valueText = opRaw === 'any' ? 'any value' : (values.length ? values.join(', ') : 'no value selected');
     const joinNode = row.previousElementSibling;
     const kw = (joinNode && joinNode.classList.contains('condition-join')) ? joinNode.dataset.op : 'IF';
-    return `<span class="kw">${kw}</span> ${field} <b>${op}</b> ${value}`;
+    return `<span class="kw">${kw}</span> ${field} <b>${opLabel}</b> ${valueText}`;
   }).join(' ');
-  const priority = document.getElementById('manPriority').value;
   document.getElementById('manualPreviewName').textContent = document.getElementById('manRuleName').value || 'Untitled rule';
   document.getElementById('manualPreviewConditions').innerHTML = conditions || '<span class="kw">IF</span> no conditions';
-  const assignees = [...document.querySelectorAll('#manAssignTo input:checked')].map(input=>input.value);
+  const assignAll = document.querySelector('#manAssignTo .cv-all');
+  const assignBoxes = [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')];
+  const checkedNames = assignBoxes.filter(b=>b.checked).map(b=>b.value);
+  const assignees = assignAll && assignAll.checked ? ['All counsellors'] : checkedNames;
   document.getElementById('assignSummary').textContent = assignees.length ? assignees.join(', ') : 'Select counsellors';
   document.getElementById('manualPreviewAssign').textContent = assignees.length ? assignees.join(', ') : 'Unassigned';
   document.getElementById('manualPreviewDist').textContent = document.getElementById('manDist').value;
-  document.getElementById('manualPreviewHours').textContent = document.querySelector('#manualHours button.on').textContent;
-  document.getElementById('manualPreviewPriority').textContent = `${priority} of 8`;
+  document.getElementById('manualPreviewHours').textContent = manualScheduleText();
   document.getElementById('manualPreviewFallback').textContent = document.getElementById('manFallback').selectedOptions[0].textContent;
-  document.getElementById('manualPriorityValue').textContent = `${priority} of 8`;
-  document.querySelector('.manual-priority .manual-priority-value').textContent = priority;
 }
 document.getElementById('builderManualPanel').addEventListener('input', updateManualPreview);
-document.getElementById('builderManualPanel').addEventListener('change', updateManualPreview);
-document.getElementById('manAssignTo').addEventListener('change', updateManualPreview);
+document.getElementById('builderManualPanel').addEventListener('change', e=>{
+  const picker = e.target.closest('#manAssignTo');
+  if(picker){
+    const all = picker.querySelector('.cv-all');
+    const boxes = [...picker.querySelectorAll('.assign-options input[type=checkbox]:not(.cv-all)')];
+    if(e.target === all){
+      boxes.forEach(b=>b.checked = all.checked);
+    } else {
+      all.checked = boxes.length>0 && boxes.every(b=>b.checked);
+    }
+  }
+  updateManualPreview();
+});
 document.getElementById('manualConditions').addEventListener('click', e=>{
   const joinBtn = e.target.closest('.condition-join');
   if(joinBtn){
@@ -1297,37 +1362,62 @@ document.getElementById('manualConditions').addEventListener('click', e=>{
 document.getElementById('addConditionBtn').addEventListener('click', ()=>{
   const join = document.createElement('button'); join.type = 'button'; join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND'; join.title = 'Click to switch between AND / OR';
   const row = document.createElement('div'); row.className = 'condition-row';
-  row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option>Walk-in</option><option>Facebook Ads</option><option>Google Ads</option><option>Instagram</option><option>Premium</option><option>MBA</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+  row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
   document.getElementById('manualConditions').append(join, row);
+  refreshConditionValues(row);
   updateManualPreview();
 });
-document.getElementById('manualHours').addEventListener('click', e=>{
+document.getElementById('manWorkingDays').addEventListener('click', e=>{
   const btn = e.target.closest('button'); if(!btn) return;
-  document.querySelectorAll('#manualHours button').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+  btn.classList.toggle('active');
   updateManualPreview();
 });
+document.getElementById('manScheduleType').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#manScheduleType button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const v = btn.dataset.v;
+  document.getElementById('manHoursRow').style.display = v==='hours' ? 'flex' : 'none';
+  document.getElementById('manShift').style.display = v==='shift' ? '' : 'none';
+  updateManualPreview();
+});
+function manualScheduleText(){
+  const days = [...document.querySelectorAll('#manWorkingDays .pill.active')].map(b=>b.dataset.day);
+  const dayText = days.length===7 ? 'Every day' : (days.length ? days.join(', ') : 'No days selected');
+  const type = document.querySelector('#manScheduleType button.on').dataset.v;
+  let hoursText = 'All day';
+  if(type==='hours') hoursText = `${document.getElementById('manHoursFrom').value}–${document.getElementById('manHoursTo').value}`;
+  if(type==='shift') hoursText = document.getElementById('manShift').value;
+  return `${dayText} · ${hoursText}`;
+}
 updateManualPreview();
 
 document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const nameEl = document.getElementById('manRuleName');
   const name = (nameEl.value||'').trim();
   if(!name){ nameEl.focus(); return; }
-  const assignTo = [...document.querySelectorAll('#manAssignTo input:checked')].map(input=>input.value).join(', ') || 'Unassigned';
+  const assignAll = document.querySelector('#manAssignTo .cv-all');
+  const assignBoxes = [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')];
+  const assignTo = assignAll && assignAll.checked ? 'All counsellors' : (assignBoxes.filter(b=>b.checked).map(b=>b.value).join(', ') || 'Unassigned');
   const dist = document.getElementById('manDist').value;
   const isCatch = document.getElementById('manFallback').value === 'true';
-  const priority = Math.max(1, parseInt(document.getElementById('manPriority').value,10) || (rules.length+1));
 
   const cond = manualConditionRows().map(row=>{
     const joinNode = row.previousElementSibling;
     const join = (joinNode && joinNode.classList.contains('condition-join')) ? joinNode.dataset.op : null;
-    const triple = [row.querySelector('.condition-field').value, row.querySelector('.condition-op').value, row.querySelector('.condition-value').value];
+    const field = row.querySelector('.condition-field').value;
+    const opRaw = row.querySelector('.condition-op').value;
+    const opLabel = conditionOpLabel(opRaw);
+    const values = conditionRowValues(row);
+    const valueText = opRaw === 'any' ? 'any value' : (values.join(', ') || 'no value selected');
+    const triple = [field, opLabel, valueText];
     return join ? [...triple, join] : triple;
   });
   if(!cond.length) cond.push(["else","=","no match above"]);
 
-  const idx = Math.min(priority-1, rules.length);
-  rules.splice(idx, 0, {p:priority, name, cond, team:assignTo, dist, matches:0, active:true, catch:isCatch});
+  const catchIdx = rules.findIndex(r=>r.catch);
+  const idx = catchIdx === -1 ? rules.length : catchIdx;
+  rules.splice(idx, 0, {p:idx+1, name, cond, team:assignTo, dist, matches:0, active:true, catch:isCatch});
   let n = 1;
   rules.forEach(r=>{ if(!r.catch) r.p = n++; });
 
@@ -1336,12 +1426,29 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   if(badge) badge.textContent = rules.length;
 
   nameEl.value='';
-  document.getElementById('manPriority').value='1';
   updateManualPreview();
 
   goTo('rules');
 });
 
+/* ================= SETTINGS ================= */
+document.getElementById('settingsWorkingDays').addEventListener('click', e=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  btn.classList.toggle('active');
+});
+document.getElementById('settingsShiftToggle').addEventListener('click', function(){
+  this.classList.toggle('on');
+  document.getElementById('settingsShiftList').style.display = this.classList.contains('on') ? 'flex' : 'none';
+});
+document.getElementById('settingsShiftList').addEventListener('click', e=>{
+  const remove = e.target.closest('.condition-remove');
+  if(remove) remove.closest('.shift-row').remove();
+});
+document.getElementById('addShiftBtn').addEventListener('click', ()=>{
+  const row = document.createElement('div'); row.className = 'shift-row';
+  row.innerHTML = `<input class="mini-input" style="width:110px; font-family:var(--font-body);" placeholder="Shift name"><div class="hours-range"><input type="time" class="mini-input" value="09:00"><span>to</span><input type="time" class="mini-input" value="17:00"></div><button class="condition-remove" type="button" aria-label="Remove shift"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+  document.getElementById('addShiftBtn').before(row);
+});
 /* ================= SIMULATOR ================= */
 function runSimulation(){
   const src = document.getElementById('simSource').value;
