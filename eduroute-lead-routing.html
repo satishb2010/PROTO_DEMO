@@ -25,8 +25,8 @@
   --warning-soft:#FBEDD8;
   --critical:#BF2A41;
   --critical-soft:#FBE4E8;
-  --info:#2158B8;
-  --info-soft:#E5EEFC;
+  --info:#f17e33;
+  --info-soft:rgba(241,126,51,0.14);
   --sidebar-bg:#14132A;
   --sidebar-bg-2:#1B1A38;
   --sidebar-ink:#B5B1D6;
@@ -66,8 +66,8 @@
     --warning-soft:rgba(240,169,74,0.14);
     --critical:#FF7A8C;
     --critical-soft:rgba(255,122,140,0.14);
-    --info:#79A9FF;
-    --info-soft:rgba(121,169,255,0.14);
+    --info:#f17e33;
+    --info-soft:rgba(241,126,51,0.14);
     --sidebar-bg:#090814;
     --sidebar-bg-2:#100E22;
     --sidebar-border:rgba(255,255,255,0.06);
@@ -98,8 +98,8 @@
   --warning-soft:rgba(240,169,74,0.14);
   --critical:#FF7A8C;
   --critical-soft:rgba(255,122,140,0.14);
-  --info:#79A9FF;
-  --info-soft:rgba(121,169,255,0.14);
+  --info:#f17e33;
+  --info-soft:rgba(241,126,51,0.14);
   --sidebar-bg:#090814;
   --sidebar-bg-2:#100E22;
   --sidebar-border:rgba(255,255,255,0.06);
@@ -309,7 +309,7 @@ tbody tr:hover{background:var(--surface-2);}
 .a2{background:linear-gradient(155deg,#0F7A54,#2FBE8B);}
 .a3{background:linear-gradient(155deg,#B4650A,#E2914A);}
 .a4{background:linear-gradient(155deg,#BF2A41,#E2617A);}
-.a5{background:linear-gradient(155deg,#2158B8,#5C8CE0);}
+.a5{background:linear-gradient(155deg,#f17e33,#f4a670);}
 .a6{background:linear-gradient(155deg,#8C5AC9,#B48CE8);}
 
 /* status chips */
@@ -450,7 +450,13 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .condition-row select.condition-value{width:100%;}
 .condition-remove{width:28px; height:30px; padding:0; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .condition-remove:hover{background:var(--critical-soft); color:var(--critical); border-color:var(--critical-soft);}
-.condition-join{font-size:10px; color:var(--ink-faint); font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding-left:4px;}
+.condition-join{
+  justify-self:start; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  padding:3px 11px; margin:1px 0 1px 4px; border-radius:999px; border:1px solid var(--border-strong);
+  background:var(--surface-2); color:var(--ink-soft); cursor:pointer; font-family:var(--font-body);
+}
+.condition-join:hover{border-color:var(--accent-line); color:var(--accent);}
+.condition-join[data-op="OR"]{background:var(--accent-soft); color:var(--accent); border-color:var(--accent-line);}
 .manual-add-condition{margin-top:8px; padding:5px 9px; font-size:11.5px;}
 .manual-priority{display:flex; align-items:center; gap:10px;}
 .manual-priority input[type=range]{min-width:0;}
@@ -785,14 +791,14 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                 <div class="field full"><label>Conditions</label>
                   <div class="condition-stack" id="manualConditions">
                     <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option selected>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option selected>Walk-in</option><option>Facebook Ads</option><option>Google Ads</option><option>Website Organic</option><option>Referral</option><option>Education Fair</option><option>Instagram</option><option>LinkedIn</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
-                    <span class="condition-join">And</span>
+                    <button type="button" class="condition-join" data-op="AND" title="Click to switch between AND / OR">AND</button>
                     <div class="condition-row"><select class="condition-field"><option value="budget" selected>Budget tier</option><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option selected>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option selected>Premium</option><option>Standard</option><option>High</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
                   </div>
                   <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
                 </div>
                 <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
-                <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Direct assign</option><option>Proximity</option><option>Language routing</option><option>Global round robin</option></select></div>
-                <div class="field"><label>Fallback</label><select id="manFallback"><option value="false">Continue to next rule</option><option value="true">Stop here (catch-all)</option></select></div>
+                <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Skill Based</option><option>Least Loaded</option><option>Language routing</option><option>Priority Based</option></select></div>
+                <div class="field"><label>Fallback</label><select id="manFallback"><option value="false">Fallback Rule</option><option value="true">Stop here (catch-all)</option></select></div>
                 <div class="field"><label>Active hours</label><div class="seg" id="manualHours"><button class="on" type="button" data-v="all">All day</button><button type="button" data-v="business">Business hours only</button></div></div>
                 <div class="field full"><label>Priority <span class="manual-priority-value" id="manualPriorityValue">8 of 8</span></label><div class="manual-priority"><input type="range" id="manPriority" min="1" max="8" value="8"><span class="manual-priority-value">8</span></div></div>
               </div>
@@ -817,7 +823,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                 <div style="display:flex; justify-content:space-between;"><span class="kv-label">Priority</span><span class="kv-value tabular" id="manualPreviewPriority">2 of 8</span></div>
                 <div class="slider-row"><input type="range" min="1" max="9" value="2"></div>
               </div>
-              <div class="kv-row"><span class="kv-label">Fallback</span><span class="kv-value" id="manualPreviewFallback">Continue to next rule</span></div>
+              <div class="kv-row"><span class="kv-label">Fallback</span><span class="kv-value" id="manualPreviewFallback">Fallback Rule</span></div>
               <div style="display:flex; gap:10px; margin-top:16px;">
                 <button class="btn" style="flex:1;" onclick="goTo('simulator')"><svg class="icon"><use href="#ic-play"/></svg>Test in simulator</button>
                 <button class="btn btn-primary" style="flex:1;"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button>
@@ -1008,10 +1014,10 @@ const rules = [
   {p:2, name:"MBA · Facebook High-Intent", cond:[["source","=","Facebook Ads"],["course","=","MBA"],["form","=","Detailed Inquiry"]], team:"MBA Team", dist:"Weighted by conversion", matches:1580, active:true, catch:false},
   {p:3, name:"Engineering · Website Leads", cond:[["course","IN","(B.Tech CSE, B.Tech Mechanical)"],["source","=","Website Organic"]], team:"Engineering Team", dist:"Round robin", matches:1240, active:true, catch:false},
   {p:4, name:"Marathi-Speaking · Pune", cond:[["city","=","Pune"],["language","=","Marathi"]], team:"Skill match", dist:"Language routing", matches:460, active:true, catch:false},
-  {p:5, name:"Diploma & Walk-in", cond:[["source","=","Walk-in"]], team:"Nearest branch", dist:"Proximity", matches:610, active:true, catch:false},
+  {p:5, name:"Diploma & Walk-in", cond:[["source","=","Walk-in"]], team:"Nearest branch", dist:"Least Loaded", matches:610, active:true, catch:false},
   {p:6, name:"After-Hours Auto Queue", cond:[["time","NOT IN","business hours"]], team:"Night Shift Pool", dist:"Round robin", matches:340, active:true, catch:false},
-  {p:7, name:"LinkedIn Executive Pilot", cond:[["source","=","LinkedIn"],["course","=","Executive MBA"]], team:"Vikram Rao", dist:"Direct assign", matches:0, active:false, catch:false},
-  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Least-loaded, any team", dist:"Global round robin", matches:170, active:true, catch:true},
+  {p:7, name:"LinkedIn Executive Pilot", cond:[["source","=","LinkedIn"],["course","=","Executive MBA"]], team:"Vikram Rao", dist:"Skill Based", matches:0, active:false, catch:false},
+  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Least-loaded, any team", dist:"Priority Based", matches:170, active:true, catch:true},
 ];
 
 const activity = [
@@ -1059,10 +1065,11 @@ function avatarInit(name,cls){
   return `<div class="avatar-sm ${cls}">${initials}</div>`;
 }
 function condText(cond){
-  return cond.map(c=>{
+  return cond.map((c,i)=>{
     if(c[0]==="else") return "no earlier rule matched";
-    return `${c[0]} <b>${c[1]}</b> ${c[2]}`;
-  }).join(' <span class="kw">AND</span> ');
+    const join = i===0 ? '' : `<span class="kw">${c[3]||'AND'}</span> `;
+    return `${join}${c[0]} <b>${c[1]}</b> ${c[2]}`;
+  }).join(' ');
 }
 
 /* dashboard capacity (top 3, matches reference) */
@@ -1181,12 +1188,12 @@ function renderHistory(){
 }
 
 /* ================= NAV ================= */
-function goTo(view){
+window.goTo = function goTo(view){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
   document.getElementById('sidebar').classList.remove('open');
   window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
-}
+};
 document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click', ()=>goTo(b.dataset.view)));
 document.getElementById('menuBtn').addEventListener('click', ()=>document.getElementById('sidebar').classList.toggle('open'));
 
@@ -1247,11 +1254,13 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
   updateManualPreview();
 });
 function updateManualPreview(){
-  const conditions = manualConditionRows().map((row, index)=>{
+  const conditions = manualConditionRows().map(row=>{
     const field = row.querySelector('.condition-field').selectedOptions[0].textContent;
     const op = row.querySelector('.condition-op').value;
     const value = row.querySelector('.condition-value').value;
-    return `${index ? '<span class="kw">AND</span> ' : '<span class="kw">IF</span> '}${field} <b>${op}</b> ${value}`;
+    const joinNode = row.previousElementSibling;
+    const kw = (joinNode && joinNode.classList.contains('condition-join')) ? joinNode.dataset.op : 'IF';
+    return `<span class="kw">${kw}</span> ${field} <b>${op}</b> ${value}`;
   }).join(' ');
   const priority = document.getElementById('manPriority').value;
   document.getElementById('manualPreviewName').textContent = document.getElementById('manRuleName').value || 'Untitled rule';
@@ -1270,6 +1279,13 @@ document.getElementById('builderManualPanel').addEventListener('input', updateMa
 document.getElementById('builderManualPanel').addEventListener('change', updateManualPreview);
 document.getElementById('manAssignTo').addEventListener('change', updateManualPreview);
 document.getElementById('manualConditions').addEventListener('click', e=>{
+  const joinBtn = e.target.closest('.condition-join');
+  if(joinBtn){
+    joinBtn.dataset.op = joinBtn.dataset.op === 'AND' ? 'OR' : 'AND';
+    joinBtn.textContent = joinBtn.dataset.op;
+    updateManualPreview();
+    return;
+  }
   const remove = e.target.closest('.condition-remove');
   if(!remove || manualConditionRows().length <= 1) return;
   const row = remove.closest('.condition-row');
@@ -1279,7 +1295,7 @@ document.getElementById('manualConditions').addEventListener('click', e=>{
   updateManualPreview();
 });
 document.getElementById('addConditionBtn').addEventListener('click', ()=>{
-  const join = document.createElement('span'); join.className = 'condition-join'; join.textContent = 'And';
+  const join = document.createElement('button'); join.type = 'button'; join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND'; join.title = 'Click to switch between AND / OR';
   const row = document.createElement('div'); row.className = 'condition-row';
   row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option></select><select class="condition-op"><option>=</option><option>IN</option><option>NOT IN</option></select><select class="condition-value"><option>Walk-in</option><option>Facebook Ads</option><option>Google Ads</option><option>Instagram</option><option>Premium</option><option>MBA</option></select><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
   document.getElementById('manualConditions').append(join, row);
@@ -1302,11 +1318,12 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const isCatch = document.getElementById('manFallback').value === 'true';
   const priority = Math.max(1, parseInt(document.getElementById('manPriority').value,10) || (rules.length+1));
 
-  const cond = manualConditionRows().map(row=>[
-    row.querySelector('.condition-field').value,
-    row.querySelector('.condition-op').value,
-    row.querySelector('.condition-value').value
-  ]);
+  const cond = manualConditionRows().map(row=>{
+    const joinNode = row.previousElementSibling;
+    const join = (joinNode && joinNode.classList.contains('condition-join')) ? joinNode.dataset.op : null;
+    const triple = [row.querySelector('.condition-field').value, row.querySelector('.condition-op').value, row.querySelector('.condition-value').value];
+    return join ? [...triple, join] : triple;
+  });
   if(!cond.length) cond.push(["else","=","no match above"]);
 
   const idx = Math.min(priority-1, rules.length);
