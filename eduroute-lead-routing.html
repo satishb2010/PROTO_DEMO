@@ -477,8 +477,8 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .condition-remove{width:28px; height:30px; padding:0; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink-faint); cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .condition-remove:hover{background:var(--critical-soft); color:var(--critical); border-color:var(--critical-soft);}
 .condition-join{
-  justify-self:start; display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
-  padding:3px 11px; margin:1px 0 1px 4px; border-radius:999px; border:1px solid var(--border-strong);
+  align-self:center; display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  padding:3px 11px; margin:1px auto; border-radius:999px; border:1px solid var(--border-strong);
   background:var(--surface-2); color:var(--ink-soft); font-family:var(--font-body);
 }
 .condition-row .assign-picker{min-width:0;}
@@ -621,7 +621,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
     </div>
     <nav class="sidebar-scroll">
       <div class="nav-group">
-        <button class="nav-item active" data-view="rules"><svg class="icon"><use href="#ic-target"/></svg>Assignment Rules<span class="nav-badge">8</span></button>
+        <button class="nav-item active" data-view="rules"><svg class="icon"><use href="#ic-target"/></svg>Assignment Rules<span class="nav-badge">0</span></button>
       </div>
     </nav>
     <div class="sidebar-foot">
@@ -798,7 +798,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
               <button class="pill" data-status="active">Active</button>
               <button class="pill" data-status="paused">Paused</button>
             </div>
-            <div class="search-box" style="width:240px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
             <div class="pillbar" id="rulesExtraFilters" style="display:none;">
               <select class="mini-select" id="rulesCreatedByFilter"><option value="all">Created by: All</option></select>
               <select class="mini-select" id="rulesDistFilter"><option value="all">Distribution: All</option></select>
@@ -1070,16 +1069,7 @@ const counsellors = [
   {name:"Divya Menon", team:"Night Shift Pool", active:18, cap:35, resp:"5m 05s", conv:24, lang:["English","Hindi","Malayalam"], status:"Available", av:"a5"},
 ];
 
-const rules = [
-  {p:1, name:"International Fee-Paying Leads", cond:[["source","=","Education Fair"],["budget","=","High"],["course","=","Executive MBA"]], team:"Executive Programs", dist:"Round robin", matches:210, active:true, catch:false, createdBy:"Satish Rao", createdOn:"15 Jan 2026"},
-  {p:2, name:"MBA · Facebook High-Intent", cond:[["source","=","Facebook Ads"],["course","=","MBA"],["form","=","Detailed Inquiry"]], team:"MBA Team", dist:"Weighted by conversion", matches:1580, active:true, catch:false, createdBy:"Satish Rao", createdOn:"22 Jan 2026"},
-  {p:3, name:"Engineering · Website Leads", cond:[["course","IN","(B.Tech CSE, B.Tech Mechanical)"],["source","=","Website Organic"]], team:"Engineering Team", dist:"Round robin", matches:1240, active:true, catch:false, createdBy:"Divya Menon", createdOn:"03 Feb 2026"},
-  {p:4, name:"Marathi-Speaking · Pune", cond:[["city","=","Pune"],["language","=","Marathi"]], team:"Skill match", dist:"Language routing", matches:460, active:true, catch:false, createdBy:"Satish Rao", createdOn:"18 Feb 2026"},
-  {p:5, name:"Diploma & Walk-in", cond:[["source","=","Walk-in"]], team:"Nearest branch", dist:"Least Loaded", matches:610, active:true, catch:false, createdBy:"Divya Menon", createdOn:"27 Mar 2026"},
-  {p:6, name:"After-Hours Auto Queue", cond:[["time","NOT IN","business hours"]], team:"Night Shift Pool", dist:"Round robin", matches:340, active:true, catch:false, createdBy:"Satish Rao", createdOn:"09 Apr 2026"},
-  {p:7, name:"LinkedIn Executive Pilot", cond:[["source","=","LinkedIn"],["course","=","Executive MBA"]], team:"Vikram Rao", dist:"Skill Based", matches:0, active:false, catch:false, createdBy:"Satish Rao", createdOn:"30 Jun 2026"},
-  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Least-loaded, any team", dist:"Priority Based", matches:170, active:true, catch:true, createdBy:"Satish Rao", createdOn:"01 Jan 2026"},
-];
+const rules = [];
 
 const activity = [
   {t:"2 min ago", lead:"LD-48213 · Ananya Gupta", rule:"MBA · Facebook High-Intent", to:"Priya Sharma", icon:"ic-check", cls:"i-success"},
@@ -1184,13 +1174,11 @@ let rulesDistVal = 'all';
 let rulesAssignToVal = 'all';
 
 function renderRules(){
-  const q = (document.getElementById('rulesSearch')?.value||'').toLowerCase();
   const rows = rules.filter(r =>
     (rulesStatusVal==='all' || (rulesStatusVal==='active' ? r.active : !r.active)) &&
     (rulesCreatedByVal==='all' || r.createdBy===rulesCreatedByVal) &&
     (rulesDistVal==='all' || r.dist===rulesDistVal) &&
-    (rulesAssignToVal==='all' || r.team===rulesAssignToVal) &&
-    (r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
+    (rulesAssignToVal==='all' || r.team===rulesAssignToVal)
   );
   document.getElementById('rulesBody').innerHTML = rows.length ? rows.map(r=>{
     const idx = rules.indexOf(r);
@@ -1218,7 +1206,7 @@ function renderRules(){
         </div>
       </td>
     </tr>`;
-  }).join('') : `<tr><td colspan="5" class="empty-note">No rules match your filters.</td></tr>`;
+  }).join('') : `<tr><td colspan="5" class="empty-note">${rules.length ? 'No rules match your filters.' : "No rules yet — click “New rule” to add your first one."}</td></tr>`;
 }
 
 /* rule row actions menu */
@@ -1400,7 +1388,6 @@ document.getElementById('rulesStatusFilter').addEventListener('click', e=>{
   document.querySelectorAll('#rulesStatusFilter .pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active'); rulesStatusVal = btn.dataset.status; renderRules(); updateRulesPausedVisibility();
 });
-document.getElementById('rulesSearch').addEventListener('input', renderRules);
 document.getElementById('rulesFilterToggle').addEventListener('click', ()=>{
   const extra = document.getElementById('rulesExtraFilters');
   extra.style.display = extra.style.display === 'none' ? 'flex' : 'none';
@@ -1765,6 +1752,7 @@ renderDashCapacity(); renderDashFeed(); renderDashRules(); renderDashAlerts();
 populateRulesFilterOptions();
 renderRulesStats(); renderRulesPaused(); updateRulesPausedVisibility();
 renderRules(); renderCounsellors(); renderHistory();
+{ const badge = document.querySelector('.nav-badge'); if(badge) badge.textContent = rules.length; }
 updateRulesDateTime(); setInterval(updateRulesDateTime, 30000);
 runSimulation();
 </script>
