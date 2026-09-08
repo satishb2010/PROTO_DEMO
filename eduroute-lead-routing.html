@@ -261,6 +261,8 @@ a{color:var(--accent);}
 .card-body-flush{padding:0 0 4px;}
 
 .stat-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:20px;}
+.stat-grid-4{grid-template-columns:repeat(4,1fr);}
+.header-datetime{font-size:12.4px; font-weight:600; color:var(--ink-soft); align-self:center; white-space:nowrap;}
 .stat-tile{
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:16px 17px;
   box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:9px; min-width:0;
@@ -403,6 +405,25 @@ hr.sep{border:none; border-top:1px solid var(--border); margin:0;}
 .rule-stat{font-size:11.6px; color:var(--ink-faint);}
 .rule-stat b{color:var(--ink); font-weight:700; font-family:var(--font-mono);}
 .rule-side{display:flex; align-items:center; gap:6px; flex:none;}
+.action-menu-wrap{position:relative;}
+.action-menu-btn{display:flex; align-items:center; gap:5px;}
+.action-menu{
+  position:absolute; top:calc(100% + 6px); right:0; min-width:172px; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-lg); padding:6px; display:none; flex-direction:column; gap:1px; z-index:20;
+}
+.action-menu.open{display:flex;}
+.action-menu-item{
+  display:flex; align-items:center; gap:9px; padding:8px 10px; border:none; background:none; border-radius:8px; cursor:pointer;
+  font-size:12.6px; font-weight:600; color:var(--ink); text-align:left; width:100%; font-family:var(--font-body);
+}
+.action-menu-item:hover{background:var(--surface-sunken);}
+.action-menu-item.danger{color:var(--critical);}
+.action-menu-item.danger:hover{background:var(--critical-soft);}
+.mini-select{border:1px solid var(--border-strong); background:var(--surface-2); border-radius:8px; padding:7px 9px; font-size:12.2px; color:var(--ink); font-family:var(--font-body); cursor:pointer;}
+.rules-table thead th.actions-col, .rules-table td.actions-col{text-align:right;}
+.rules-table .action-menu-wrap{display:inline-block; position:relative;}
+.rules-table .action-menu{right:0;}
+.rules-table td{vertical-align:top;}
 
 /* ============ AI BUILDER ============ */
 .ai-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;}
@@ -561,6 +582,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 <symbol id="ic-chev-right" viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></symbol>
 <symbol id="ic-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
 <symbol id="ic-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.3" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ic-dots" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.7" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="5 13 10 18 19 7"/></symbol>
 <symbol id="ic-x" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
 <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4 21 20H3Z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17.3" r=".4" fill="currentColor" stroke="none"/></symbol>
@@ -589,20 +611,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
     </div>
     <nav class="sidebar-scroll">
       <div class="nav-group">
-        <div class="nav-label">Workspace</div>
-        <button class="nav-item active" data-view="dashboard"><svg class="icon"><use href="#ic-grid"/></svg>Dashboard</button>
-        <button class="nav-item" data-view="rules"><svg class="icon"><use href="#ic-target"/></svg>Assignment Rules<span class="nav-badge">8</span></button>
-        <button class="nav-item" data-view="builder"><svg class="icon"><use href="#ic-spark"/></svg>AI Rule Builder</button>
-        <button class="nav-item" data-view="simulator"><svg class="icon"><use href="#ic-sliders"/></svg>Rule Simulator</button>
-      </div>
-      <div class="nav-group">
-        <div class="nav-label">Operations</div>
-        <button class="nav-item" data-view="counsellors"><svg class="icon"><use href="#ic-users"/></svg>Counsellors &amp; Capacity</button>
-        <button class="nav-item" data-view="history"><svg class="icon"><use href="#ic-history"/></svg>Assignment History</button>
-      </div>
-      <div class="nav-group">
-        <div class="nav-label">System</div>
-        <button class="nav-item" data-view="settings"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
+        <button class="nav-item active" data-view="rules"><svg class="icon"><use href="#ic-target"/></svg>Assignment Rules<span class="nav-badge">8</span></button>
       </div>
     </nav>
     <div class="sidebar-foot">
@@ -644,7 +653,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
     <main class="content">
 
       <!-- ============ DASHBOARD ============ -->
-      <section class="view active" id="view-dashboard">
+      <section class="view" id="view-dashboard">
         <div class="view-header">
           <div>
             <h1 class="view-title">Assignment Dashboard</h1>
@@ -747,19 +756,51 @@ input[type=range]{flex:1; accent-color:var(--accent);}
       </section>
 
       <!-- ============ ASSIGNMENT RULES ============ -->
-      <section class="view" id="view-rules">
+      <section class="view active" id="view-rules">
         <div class="view-header">
           <div>
             <h1 class="view-title">Assignment Rules</h1>
             <p class="view-sub">Rules run top to bottom in priority order — the first match wins</p>
           </div>
           <div class="view-actions">
-            <button class="btn"><svg class="icon"><use href="#ic-filter"/></svg>Filter</button>
+            <div class="header-datetime" id="rulesDateTime"></div>
+            <button class="btn" type="button" id="rulesFilterToggle"><svg class="icon"><use href="#ic-filter"/></svg>Filter</button>
             <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
           </div>
         </div>
+
+        <div class="stat-grid stat-grid-4" id="rulesStatGrid"></div>
+
+        <div class="card" id="rulesPausedCard">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Paused rules</div>
+              <div class="card-sub">Not currently routing any leads</div>
+            </div>
+            <span class="chip chip-neutral"><span class="dot"></span><span id="rulesPausedCount">0</span> paused</span>
+          </div>
+          <div id="rulesPausedList"></div>
+        </div>
+
         <div class="card">
-          <div id="rulesList"></div>
+          <div class="card-head" style="flex-wrap:wrap; gap:12px;">
+            <div class="pillbar" id="rulesStatusFilter">
+              <button class="pill active" data-status="all">All rules</button>
+              <button class="pill" data-status="active">Active</button>
+              <button class="pill" data-status="paused">Paused</button>
+            </div>
+            <div class="search-box" style="width:240px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
+            <div class="pillbar" id="rulesExtraFilters" style="display:none;">
+              <select class="mini-select" id="rulesCreatedByFilter"><option value="all">Created by: All</option></select>
+              <select class="mini-select" id="rulesDistFilter"><option value="all">Distribution: All</option></select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="rules-table">
+              <thead><tr><th>Rule name</th><th>Rule details</th><th>Status</th><th>All match leads</th><th>Created on</th><th class="actions-col">Actions</th></tr></thead>
+              <tbody id="rulesBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1024,14 +1065,14 @@ const counsellors = [
 ];
 
 const rules = [
-  {p:1, name:"International Fee-Paying Leads", cond:[["source","=","Education Fair"],["budget","=","High"],["course","=","Executive MBA"]], team:"Executive Programs", dist:"Round robin", matches:210, active:true, catch:false},
-  {p:2, name:"MBA · Facebook High-Intent", cond:[["source","=","Facebook Ads"],["course","=","MBA"],["form","=","Detailed Inquiry"]], team:"MBA Team", dist:"Weighted by conversion", matches:1580, active:true, catch:false},
-  {p:3, name:"Engineering · Website Leads", cond:[["course","IN","(B.Tech CSE, B.Tech Mechanical)"],["source","=","Website Organic"]], team:"Engineering Team", dist:"Round robin", matches:1240, active:true, catch:false},
-  {p:4, name:"Marathi-Speaking · Pune", cond:[["city","=","Pune"],["language","=","Marathi"]], team:"Skill match", dist:"Language routing", matches:460, active:true, catch:false},
-  {p:5, name:"Diploma & Walk-in", cond:[["source","=","Walk-in"]], team:"Nearest branch", dist:"Least Loaded", matches:610, active:true, catch:false},
-  {p:6, name:"After-Hours Auto Queue", cond:[["time","NOT IN","business hours"]], team:"Night Shift Pool", dist:"Round robin", matches:340, active:true, catch:false},
-  {p:7, name:"LinkedIn Executive Pilot", cond:[["source","=","LinkedIn"],["course","=","Executive MBA"]], team:"Vikram Rao", dist:"Skill Based", matches:0, active:false, catch:false},
-  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Least-loaded, any team", dist:"Priority Based", matches:170, active:true, catch:true},
+  {p:1, name:"International Fee-Paying Leads", cond:[["source","=","Education Fair"],["budget","=","High"],["course","=","Executive MBA"]], team:"Executive Programs", dist:"Round robin", matches:210, active:true, catch:false, createdBy:"Satish Rao", createdOn:"15 Jan 2026"},
+  {p:2, name:"MBA · Facebook High-Intent", cond:[["source","=","Facebook Ads"],["course","=","MBA"],["form","=","Detailed Inquiry"]], team:"MBA Team", dist:"Weighted by conversion", matches:1580, active:true, catch:false, createdBy:"Satish Rao", createdOn:"22 Jan 2026"},
+  {p:3, name:"Engineering · Website Leads", cond:[["course","IN","(B.Tech CSE, B.Tech Mechanical)"],["source","=","Website Organic"]], team:"Engineering Team", dist:"Round robin", matches:1240, active:true, catch:false, createdBy:"Divya Menon", createdOn:"03 Feb 2026"},
+  {p:4, name:"Marathi-Speaking · Pune", cond:[["city","=","Pune"],["language","=","Marathi"]], team:"Skill match", dist:"Language routing", matches:460, active:true, catch:false, createdBy:"Satish Rao", createdOn:"18 Feb 2026"},
+  {p:5, name:"Diploma & Walk-in", cond:[["source","=","Walk-in"]], team:"Nearest branch", dist:"Least Loaded", matches:610, active:true, catch:false, createdBy:"Divya Menon", createdOn:"27 Mar 2026"},
+  {p:6, name:"After-Hours Auto Queue", cond:[["time","NOT IN","business hours"]], team:"Night Shift Pool", dist:"Round robin", matches:340, active:true, catch:false, createdBy:"Satish Rao", createdOn:"09 Apr 2026"},
+  {p:7, name:"LinkedIn Executive Pilot", cond:[["source","=","LinkedIn"],["course","=","Executive MBA"]], team:"Vikram Rao", dist:"Skill Based", matches:0, active:false, catch:false, createdBy:"Satish Rao", createdOn:"30 Jun 2026"},
+  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Least-loaded, any team", dist:"Priority Based", matches:170, active:true, catch:true, createdBy:"Satish Rao", createdOn:"01 Jan 2026"},
 ];
 
 const activity = [
@@ -1131,29 +1172,150 @@ function renderDashAlerts(){
 }
 
 /* rules view */
+let rulesStatusVal = 'all';
+let rulesCreatedByVal = 'all';
+let rulesDistVal = 'all';
+
 function renderRules(){
-  document.getElementById('rulesList').innerHTML = rules.map(r=>`
-    <div class="rule-card ${r.active?'':'paused'}">
-      <span class="grip"><svg class="icon"><use href="#ic-grip"/></svg></span>
-      <div class="rule-priority ${r.catch?'catch':''}">${r.catch?'—':r.p}</div>
-      <div class="rule-main">
-        <div class="rule-top">
-          <span class="rule-name">${r.name}</span>
-          ${r.catch?'<span class="badge-catch">Catch-all</span>':''}
-          ${!r.active?'<span class="chip chip-neutral"><span class="dot"></span>Paused</span>':''}
-        </div>
+  const q = (document.getElementById('rulesSearch')?.value||'').toLowerCase();
+  const rows = rules.filter(r =>
+    (rulesStatusVal==='all' || (rulesStatusVal==='active' ? r.active : !r.active)) &&
+    (rulesCreatedByVal==='all' || r.createdBy===rulesCreatedByVal) &&
+    (rulesDistVal==='all' || r.dist===rulesDistVal) &&
+    (r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
+  );
+  document.getElementById('rulesBody').innerHTML = rows.length ? rows.map(r=>{
+    const idx = rules.indexOf(r);
+    return `
+    <tr>
+      <td>
+        <div class="cell-name">${r.name}${r.catch?' <span class="badge-catch">Catch-all</span>':''}</div>
+        <div class="cell-sub">Created by ${r.createdBy} · Priority ${r.catch?'—':r.p}</div>
+      </td>
+      <td style="min-width:260px;">
         <div class="code-pill"><span class="kw">IF</span> ${condText(r.cond)} <span class="kw">THEN</span> assign to <b>${r.team}</b></div>
-        <div class="rule-stats">
-          <div class="rule-stat">Distribution: <b style="font-family:var(--font-body); font-weight:600; color:var(--ink-soft);">${r.dist}</b></div>
-          <div class="rule-stat">Matches today: <b>${r.matches.toLocaleString()}</b></div>
+        <div class="cell-sub" style="margin-top:6px;">Distribution: <b style="color:var(--ink-soft); font-weight:600;">${r.dist}</b></div>
+      </td>
+      <td>${r.active?'<span class="chip chip-success"><span class="dot"></span>Active</span>':'<span class="chip chip-neutral"><span class="dot"></span>Paused</span>'}</td>
+      <td class="tabular">${r.matches.toLocaleString()}</td>
+      <td>${r.createdOn}</td>
+      <td class="actions-col">
+        <div class="action-menu-wrap">
+          <button type="button" class="icon-btn" onclick="toggleActionMenu(event)" aria-label="Row actions"><svg class="icon icon-sm"><use href="#ic-dots"/></svg></button>
+          <div class="action-menu">
+            <button type="button" class="action-menu-item" onclick="toggleRuleActive(${idx})"><svg class="icon icon-sm"><use href="#ic-check"/></svg>${r.active?'Mark paused':'Mark active'}</button>
+            <button type="button" class="action-menu-item" onclick="closeActionMenus()"><svg class="icon icon-sm"><use href="#ic-edit"/></svg>Edit</button>
+            <button type="button" class="action-menu-item" onclick="duplicateRule(${idx})"><svg class="icon icon-sm"><use href="#ic-copy"/></svg>Duplicate</button>
+            <button type="button" class="action-menu-item danger" onclick="deleteRule(${idx})"><svg class="icon icon-sm"><use href="#ic-trash"/></svg>Delete</button>
+          </div>
         </div>
-      </div>
-      <div class="rule-side">
-        <button class="switch ${r.active?'on':''}" onclick="this.classList.toggle('on')"></button>
-        <button class="icon-btn"><svg class="icon icon-sm"><use href="#ic-edit"/></svg></button>
-        <button class="icon-btn"><svg class="icon icon-sm"><use href="#ic-copy"/></svg></button>
-      </div>
-    </div>`).join('');
+      </td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="6" class="empty-note">No rules match your filters.</td></tr>`;
+}
+
+/* rule row actions menu */
+window.toggleActionMenu = function(evt){
+  evt.stopPropagation();
+  const wrap = evt.currentTarget.closest('.action-menu-wrap');
+  const menu = wrap.querySelector('.action-menu');
+  const isOpen = menu.classList.contains('open');
+  closeActionMenus();
+  if(!isOpen) menu.classList.add('open');
+};
+window.closeActionMenus = function(){
+  document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open'));
+};
+document.addEventListener('click', closeActionMenus);
+
+window.toggleRuleActive = function(idx){
+  rules[idx].active = !rules[idx].active;
+  closeActionMenus();
+  renderRules(); renderRulesStats(); renderRulesPaused();
+};
+window.duplicateRule = function(idx){
+  const src = rules[idx];
+  const copy = Object.assign({}, src, {name: src.name + ' (copy)', matches:0, createdBy:"Satish Rao", createdOn:new Date().toLocaleDateString(undefined,{day:'2-digit', month:'short', year:'numeric'})});
+  rules.splice(idx+1, 0, copy);
+  let n = 1; rules.forEach(r=>{ if(!r.catch) r.p = n++; });
+  closeActionMenus();
+  renderRules(); renderRulesStats(); renderRulesPaused(); populateRulesFilterOptions();
+  const badge = document.querySelector('.nav-badge'); if(badge) badge.textContent = rules.length;
+};
+window.deleteRule = function(idx){
+  rules.splice(idx,1);
+  let n = 1; rules.forEach(r=>{ if(!r.catch) r.p = n++; });
+  closeActionMenus();
+  renderRules(); renderRulesStats(); renderRulesPaused();
+  const badge = document.querySelector('.nav-badge'); if(badge) badge.textContent = rules.length;
+};
+
+function renderRulesStats(){
+  const total = rules.length;
+  const activeCount = rules.filter(r=>r.active).length;
+  const pausedCount = total - activeCount;
+  const matchesToday = rules.reduce((s,r)=>s+r.matches,0);
+  document.getElementById('rulesStatGrid').innerHTML = `
+    <div class="stat-tile">
+      <div class="stat-top"><span class="stat-label">Total rules</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-target"/></svg></span></div>
+      <div class="stat-value tabular">${total}</div>
+      <div class="stat-foot flat">Across all campuses</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-top"><span class="stat-label">Active rules</span><span class="stat-icon i-success"><svg class="icon"><use href="#ic-check"/></svg></span></div>
+      <div class="stat-value tabular">${activeCount}</div>
+      <div class="stat-foot flat">Currently routing leads</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-top"><span class="stat-label">Paused rules</span><span class="stat-icon i-warning"><svg class="icon"><use href="#ic-alert"/></svg></span></div>
+      <div class="stat-value tabular">${pausedCount}</div>
+      <div class="stat-foot down">Not routing any leads</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-top"><span class="stat-label">Matches today</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-zap"/></svg></span></div>
+      <div class="stat-value tabular">${matchesToday.toLocaleString()}</div>
+      <div class="stat-foot up">Leads routed by rules</div>
+    </div>`;
+}
+
+function renderRulesPaused(){
+  const paused = rules.filter(r=>!r.active);
+  const countEl = document.getElementById('rulesPausedCount');
+  if(countEl) countEl.textContent = paused.length;
+  const listEl = document.getElementById('rulesPausedList');
+  if(!listEl) return;
+  listEl.innerHTML = paused.length ? paused.map(r=>{
+    const idx = rules.indexOf(r);
+    return `
+    <div class="alert-row">
+      <span class="alert-dot" style="background:var(--ink-faint);"></span>
+      <div style="flex:1; min-width:0;"><div class="alert-name">${r.name}</div><div class="alert-meta">${r.team} · ${r.dist}</div></div>
+      <button class="btn btn-sm" onclick="toggleRuleActive(${idx})">Activate</button>
+    </div>`;
+  }).join('') : `<div class="empty-note">No rules are currently paused.</div>`;
+}
+
+function populateRulesFilterOptions(){
+  const byEl = document.getElementById('rulesCreatedByFilter');
+  const distEl = document.getElementById('rulesDistFilter');
+  if(!byEl || !distEl) return;
+  const prevBy = byEl.value || 'all';
+  const prevDist = distEl.value || 'all';
+  const creators = [...new Set(rules.map(r=>r.createdBy))].sort();
+  const dists = [...new Set(rules.map(r=>r.dist))].sort();
+  byEl.innerHTML = '<option value="all">Created by: All</option>' + creators.map(c=>`<option value="${c}">Created by: ${c}</option>`).join('');
+  distEl.innerHTML = '<option value="all">Distribution: All</option>' + dists.map(d=>`<option value="${d}">Distribution: ${d}</option>`).join('');
+  byEl.value = creators.includes(prevBy) ? prevBy : 'all';
+  distEl.value = dists.includes(prevDist) ? prevDist : 'all';
+}
+
+function updateRulesDateTime(){
+  const el = document.getElementById('rulesDateTime');
+  if(!el) return;
+  const now = new Date();
+  const datePart = now.toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'});
+  const timePart = now.toLocaleTimeString(undefined,{hour:'2-digit', minute:'2-digit'});
+  el.textContent = `${datePart} · ${timePart}`;
 }
 
 /* counsellors view */
@@ -1210,6 +1372,19 @@ window.goTo = function goTo(view){
 };
 document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click', ()=>goTo(b.dataset.view)));
 document.getElementById('menuBtn').addEventListener('click', ()=>document.getElementById('sidebar').classList.toggle('open'));
+
+document.getElementById('rulesStatusFilter').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill'); if(!btn) return;
+  document.querySelectorAll('#rulesStatusFilter .pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); rulesStatusVal = btn.dataset.status; renderRules();
+});
+document.getElementById('rulesSearch').addEventListener('input', renderRules);
+document.getElementById('rulesFilterToggle').addEventListener('click', ()=>{
+  const extra = document.getElementById('rulesExtraFilters');
+  extra.style.display = extra.style.display === 'none' ? 'flex' : 'none';
+});
+document.getElementById('rulesCreatedByFilter').addEventListener('change', function(){ rulesCreatedByVal = this.value; renderRules(); });
+document.getElementById('rulesDistFilter').addEventListener('change', function(){ rulesDistVal = this.value; renderRules(); });
 
 document.getElementById('teamFilter').addEventListener('click', e=>{
   const btn = e.target.closest('.pill'); if(!btn) return;
@@ -1521,6 +1696,9 @@ function runSimulation(){
 
 /* ================= INIT ================= */
 renderDashCapacity(); renderDashFeed(); renderDashRules(); renderDashAlerts();
+populateRulesFilterOptions();
+renderRulesStats(); renderRulesPaused();
 renderRules(); renderCounsellors(); renderHistory();
+updateRulesDateTime(); setInterval(updateRulesDateTime, 30000);
 runSimulation();
 </script>
