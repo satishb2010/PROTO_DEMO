@@ -262,6 +262,11 @@ a{color:var(--accent);}
 
 .stat-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:20px;}
 .stat-grid-4{grid-template-columns:repeat(4,1fr);}
+.stat-grid-4 .stat-tile{padding:12px 14px; gap:5px;}
+.stat-grid-4 .stat-icon{width:24px; height:24px;}
+.stat-grid-4 .stat-value{font-size:19px;}
+.stat-grid-4 .stat-label{font-size:11px;}
+.stat-grid-4 .stat-foot{font-size:11px;}
 .header-datetime{font-size:12.4px; font-weight:600; color:var(--ink-soft); align-self:center; white-space:nowrap;}
 .stat-tile{
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:16px 17px;
@@ -592,6 +597,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 4 21 20H3Z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17.3" r=".4" fill="currentColor" stroke="none"/></symbol>
 <symbol id="ic-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5Z"/></symbol>
 <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="4" y1="12" x2="18" y2="12"/><polyline points="13 6 19 12 13 18"/></symbol>
+<symbol id="ic-arrow-left" viewBox="0 0 24 24"><line x1="20" y1="12" x2="6" y2="12"/><polyline points="11 6 5 12 11 18"/></symbol>
 <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M14.5 5.5 18.5 9.5 8 20H4v-4Z"/></symbol>
 <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/></symbol>
 <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M15 9V5.5A1.5 1.5 0 0 0 13.5 4H5.5A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15H9"/></symbol>
@@ -764,7 +770,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         <div class="view-header">
           <div>
             <h1 class="view-title">Assignment Rules</h1>
-            <p class="view-sub">Rules run top to bottom in priority order — the first match wins</p>
           </div>
           <div class="view-actions">
             <div class="header-datetime" id="rulesDateTime"></div>
@@ -797,11 +802,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
             <div class="pillbar" id="rulesExtraFilters" style="display:none;">
               <select class="mini-select" id="rulesCreatedByFilter"><option value="all">Created by: All</option></select>
               <select class="mini-select" id="rulesDistFilter"><option value="all">Distribution: All</option></select>
+              <select class="mini-select" id="rulesAssignToFilter"><option value="all">Assign to: All</option></select>
             </div>
           </div>
           <div class="table-wrap">
             <table class="rules-table">
-              <thead><tr><th>Rule name</th><th>Rule details</th><th>Status</th><th>All match leads</th><th>Created on</th><th class="actions-col">Actions</th></tr></thead>
+              <thead><tr><th>Rule name</th><th>Rule details</th><th>Status</th><th>All match leads</th><th class="actions-col">Actions</th></tr></thead>
               <tbody id="rulesBody"></tbody>
             </table>
           </div>
@@ -812,20 +818,21 @@ input[type=range]{flex:1; accent-color:var(--accent);}
       <section class="view" id="view-builder">
         <div class="view-header">
           <div>
-            <h1 class="view-title">AI Rule Builder</h1>
+            <button class="btn btn-sm" type="button" onclick="goTo('rules')" style="margin-bottom:10px;"><svg class="icon icon-sm"><use href="#ic-arrow-left"/></svg>Back</button>
+            <h1 class="view-title">Rule Builder</h1>
             <p class="view-sub">Describe how leads should be routed in plain English, or add a rule manually</p>
           </div>
-          <div class="view-actions"><div class="seg" id="builderMode" style="width:190px;"><button class="on" data-mode="ai">AI describe</button><button data-mode="manual">Add manually</button></div></div>
+          <div class="view-actions"><div class="seg" id="builderMode" style="width:190px;"><button data-mode="ai">AI describe</button><button class="on" data-mode="manual">Add manually</button></div></div>
         </div>
         <div class="ai-grid" id="builderGrid">
           <div class="card">
             <div class="card-head">
-              <div><div class="card-title" id="builderFormTitle">Describe your rule</div><div class="card-sub" id="builderModeSub">Try one of the examples or write your own</div></div>
+              <div><div class="card-title" id="builderFormTitle">Rule details</div><div class="card-sub" id="builderModeSub">Fill in the fields to add a rule directly — no AI needed</div></div>
             </div>
-            <div id="builderAiPanel">
+            <div id="builderAiPanel" style="display:none;">
               <div class="chat-pane">
                 <div class="chat-bubble chat-user">Route Instagram leads for MBA and BBA programs to Priya Sharma and Neha Kulkarni, split evenly, but only during business hours (9am–7pm IST). Everything else should fall through to the next rule.</div>
-                <div class="chat-bubble chat-ai">Got it. I'll create a rule matching <b>source = Instagram</b> and <b>program IN (MBA, BBA)</b>, active only <b>09:00–19:00 IST</b>, distributing leads by <b>round robin</b> between Priya Sharma and Neha Kulkarni. Leads outside business hours or from other sources will pass to the next rule in priority order. Review the draft on the right — priority, team and hours are all editable before you save.</div>
+                <div class="chat-bubble chat-ai">Got it. I'll create a rule matching <b>source = Instagram</b> and <b>program IN (MBA, BBA)</b>, active only <b>09:00–19:00 IST</b>, distributing leads by <b>Equal Distribution</b> between Priya Sharma and Neha Kulkarni. Leads outside business hours or from other sources will pass to the next rule in priority order. Review the draft on the right — priority, team and hours are all editable before you save.</div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">
                   <button class="prompt-chip" type="button">Balance leads evenly across engineering counsellors</button>
                   <button class="prompt-chip" type="button">Send high-budget international leads to senior staff</button>
@@ -837,7 +844,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                 <button class="btn btn-primary" style="align-self:flex-end;"><svg class="icon"><use href="#ic-spark"/></svg>Generate</button>
               </div>
             </div>
-            <div class="manual-panel" id="builderManualPanel" style="display:none;">
+            <div class="manual-panel" id="builderManualPanel">
               <div class="manual-form-grid">
                 <div class="field full"><label>Rule name</label><input type="text" id="manRuleName" value="Walk-in Priority Routing" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
                 <div class="field full"><label>Conditions</label>
@@ -849,7 +856,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                   <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
                 </div>
                 <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All counsellors</label><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
-                <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Ratio Based</option></select></div>
+                <div class="field"><label>Distribution</label><select id="manDist"><option>Equal Distribution</option><option>Ratio Based</option></select></div>
                 <div class="field full" id="manRatioField" style="display:none;">
                   <label>Counsellor Ratio</label>
                   <div class="ratio-block" id="manRatioList"></div>
@@ -862,7 +869,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 
           <div class="card" id="builderDraftCard">
             <div class="card-head">
-              <div><div class="card-title" id="draftTitle">Generated rule draft</div><div class="card-sub" id="draftSub">Parsed from your description — edit before saving</div></div>
+              <div><div class="card-title" id="draftTitle">Rule preview</div><div class="card-sub" id="draftSub">Updates live as you fill in the form</div></div>
               <span class="chip chip-info"><span class="dot"></span>Draft</span>
             </div> 
             <div class="rule-preview">
@@ -1174,6 +1181,7 @@ function renderDashAlerts(){
 let rulesStatusVal = 'all';
 let rulesCreatedByVal = 'all';
 let rulesDistVal = 'all';
+let rulesAssignToVal = 'all';
 
 function renderRules(){
   const q = (document.getElementById('rulesSearch')?.value||'').toLowerCase();
@@ -1181,6 +1189,7 @@ function renderRules(){
     (rulesStatusVal==='all' || (rulesStatusVal==='active' ? r.active : !r.active)) &&
     (rulesCreatedByVal==='all' || r.createdBy===rulesCreatedByVal) &&
     (rulesDistVal==='all' || r.dist===rulesDistVal) &&
+    (rulesAssignToVal==='all' || r.team===rulesAssignToVal) &&
     (r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
   );
   document.getElementById('rulesBody').innerHTML = rows.length ? rows.map(r=>{
@@ -1197,7 +1206,6 @@ function renderRules(){
       </td>
       <td>${r.active?'<span class="chip chip-success"><span class="dot"></span>Active</span>':'<span class="chip chip-neutral"><span class="dot"></span>Paused</span>'}</td>
       <td class="tabular">${r.matches.toLocaleString()}</td>
-      <td>${r.createdOn}</td>
       <td class="actions-col">
         <div class="action-menu-wrap">
           <button type="button" class="icon-btn" onclick="toggleActionMenu(event)" aria-label="Row actions"><svg class="icon icon-sm"><use href="#ic-dots"/></svg></button>
@@ -1210,7 +1218,7 @@ function renderRules(){
         </div>
       </td>
     </tr>`;
-  }).join('') : `<tr><td colspan="6" class="empty-note">No rules match your filters.</td></tr>`;
+  }).join('') : `<tr><td colspan="5" class="empty-note">No rules match your filters.</td></tr>`;
 }
 
 /* rule row actions menu */
@@ -1226,6 +1234,12 @@ window.closeActionMenus = function(){
   document.querySelectorAll('.action-menu.open').forEach(m=>m.classList.remove('open'));
 };
 document.addEventListener('click', closeActionMenus);
+/* close any open multiselect (Assign to / condition value pickers) when clicking outside it */
+document.addEventListener('click', e=>{
+  document.querySelectorAll('details.assign-picker[open]').forEach(d=>{
+    if(!d.contains(e.target)) d.removeAttribute('open');
+  });
+});
 
 window.toggleRuleActive = function(idx){
   rules[idx].active = !rules[idx].active;
@@ -1297,15 +1311,20 @@ function renderRulesPaused(){
 function populateRulesFilterOptions(){
   const byEl = document.getElementById('rulesCreatedByFilter');
   const distEl = document.getElementById('rulesDistFilter');
-  if(!byEl || !distEl) return;
+  const assignEl = document.getElementById('rulesAssignToFilter');
+  if(!byEl || !distEl || !assignEl) return;
   const prevBy = byEl.value || 'all';
   const prevDist = distEl.value || 'all';
+  const prevAssign = assignEl.value || 'all';
   const creators = [...new Set(rules.map(r=>r.createdBy))].sort();
   const dists = [...new Set(rules.map(r=>r.dist))].sort();
+  const assignees = [...new Set(rules.map(r=>r.team))].sort();
   byEl.innerHTML = '<option value="all">Created by: All</option>' + creators.map(c=>`<option value="${c}">Created by: ${c}</option>`).join('');
   distEl.innerHTML = '<option value="all">Distribution: All</option>' + dists.map(d=>`<option value="${d}">Distribution: ${d}</option>`).join('');
+  assignEl.innerHTML = '<option value="all">Assign to: All</option>' + assignees.map(a=>`<option value="${a}">Assign to: ${a}</option>`).join('');
   byEl.value = creators.includes(prevBy) ? prevBy : 'all';
   distEl.value = dists.includes(prevDist) ? prevDist : 'all';
+  assignEl.value = assignees.includes(prevAssign) ? prevAssign : 'all';
 }
 
 function updateRulesDateTime(){
@@ -1388,6 +1407,7 @@ document.getElementById('rulesFilterToggle').addEventListener('click', ()=>{
 });
 document.getElementById('rulesCreatedByFilter').addEventListener('change', function(){ rulesCreatedByVal = this.value; renderRules(); });
 document.getElementById('rulesDistFilter').addEventListener('change', function(){ rulesDistVal = this.value; renderRules(); });
+document.getElementById('rulesAssignToFilter').addEventListener('change', function(){ rulesAssignToVal = this.value; renderRules(); });
 
 document.getElementById('teamFilter').addEventListener('click', e=>{
   const btn = e.target.closest('.pill'); if(!btn) return;
@@ -1467,7 +1487,16 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
   }
   if(e.target.classList.contains('condition-op')){
     const row = e.target.closest('.condition-row');
-    row.querySelector('.condition-value-picker').classList.toggle('disabled', e.target.value === 'any');
+    const picker = row.querySelector('.condition-value-picker');
+    const isAny = e.target.value === 'any';
+    picker.classList.toggle('disabled', isAny);
+    if(isAny){
+      const all = picker.querySelector('.cv-all');
+      const boxes = [...picker.querySelectorAll('.assign-options input[type=checkbox]:not(.cv-all)')];
+      if(all) all.checked = true;
+      boxes.forEach(b=>b.checked = true);
+      updateConditionValueSummary(row);
+    }
     updateManualPreview();
     return;
   }
@@ -1628,6 +1657,9 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   rules.forEach(r=>{ if(!r.catch) r.p = n++; });
 
   renderRules();
+  renderRulesStats();
+  renderRulesPaused();
+  populateRulesFilterOptions();
   const badge = document.querySelector('.nav-badge');
   if(badge) badge.textContent = rules.length;
 
