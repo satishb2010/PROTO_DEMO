@@ -484,6 +484,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .shift-list{display:flex; flex-direction:column; gap:8px; padding:14px 0 4px;}
 .shift-row{display:flex; align-items:center; gap:10px;}
 .manual-add-condition{margin-top:8px; padding:5px 9px; font-size:11.5px;}
+.ratio-block{display:flex; flex-direction:column; gap:7px;}
+.ratio-row{display:flex; align-items:center; gap:10px;}
+.ratio-name{flex:1; min-width:0; font-size:12.6px; font-weight:600; color:var(--ink);}
+.ratio-input{width:64px; text-align:center;}
+.ratio-pct{width:44px; text-align:right; font-weight:700; color:var(--accent); font-family:var(--font-mono); font-size:12.6px;}
+.ratio-total{font-size:11.6px; color:var(--ink-faint); margin-top:2px;}
 .manual-priority{display:flex; align-items:center; gap:10px;}
 .manual-priority input[type=range]{min-width:0;}
 .manual-priority-value{font-family:var(--font-mono); font-size:12px; font-weight:700; white-space:nowrap;}
@@ -769,7 +775,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 
         <div class="stat-grid stat-grid-4" id="rulesStatGrid"></div>
 
-        <div class="card" id="rulesPausedCard">
+        <div class="card" id="rulesPausedCard" style="display:none;">
           <div class="card-head">
             <div>
               <div class="card-title">Paused rules</div>
@@ -843,7 +849,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                   <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
                 </div>
                 <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All counsellors</label><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
-                <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Weighted by conversion</option><option>Skill Based</option><option>Least Loaded</option><option>Language routing</option><option>Priority Based</option></select></div>
+                <div class="field"><label>Distribution</label><select id="manDist"><option>Round robin</option><option>Ratio Based</option></select></div>
+                <div class="field full" id="manRatioField" style="display:none;">
+                  <label>Counsellor Ratio</label>
+                  <div class="ratio-block" id="manRatioList"></div>
+                  <div class="ratio-total" id="manRatioTotal">Total ratio: 0</div>
+                </div>
               </div>
               <div class="manual-actions"><button class="btn btn-primary" type="button" id="manualSaveBtn"><svg class="icon"><use href="#ic-check"/></svg>Save rule</button></div>
             </div>
@@ -1361,10 +1372,14 @@ window.goTo = function goTo(view){
 document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click', ()=>goTo(b.dataset.view)));
 document.getElementById('menuBtn').addEventListener('click', ()=>document.getElementById('sidebar').classList.toggle('open'));
 
+function updateRulesPausedVisibility(){
+  const card = document.getElementById('rulesPausedCard');
+  if(card) card.style.display = rulesStatusVal === 'paused' ? '' : 'none';
+}
 document.getElementById('rulesStatusFilter').addEventListener('click', e=>{
   const btn = e.target.closest('.pill'); if(!btn) return;
   document.querySelectorAll('#rulesStatusFilter .pill').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active'); rulesStatusVal = btn.dataset.status; renderRules();
+  btn.classList.add('active'); rulesStatusVal = btn.dataset.status; renderRules(); updateRulesPausedVisibility();
 });
 document.getElementById('rulesSearch').addEventListener('input', renderRules);
 document.getElementById('rulesFilterToggle').addEventListener('click', ()=>{
@@ -1471,6 +1486,62 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
   }
   updateManualPreview();
 });
+/* counsellor ratio (Distribution = Ratio Based) */
+let manualRatios = {};
+function getSelectedAssignees(){
+  return [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')].filter(b=>b.checked).map(b=>b.value);
+}
+function computeRatioPercentages(){
+  const names = getSelectedAssignees();
+  const total = names.reduce((s,n)=> s + (manualRatios[n]||1), 0) || 1;
+  return names.map(n=>({name:n, ratio: manualRatios[n]||1, pct: Math.round((manualRatios[n]||1)/total*100)}));
+}
+function renderRatioRows(){
+  const listEl = document.getElementById('manRatioList');
+  const totalEl = document.getElementById('manRatioTotal');
+  if(!listEl || !totalEl) return;
+  const names = getSelectedAssignees();
+  if(!names.length){
+    listEl.innerHTML = '<div class="empty-note" style="padding:6px 0; text-align:left;">Select counsellors in Assign to above to configure their ratio.</div>';
+    totalEl.textContent = 'Total ratio: 0';
+    return;
+  }
+  listEl.innerHTML = names.map(n=>`<div class="ratio-row" data-name="${n}"><span class="ratio-name">${n}</span><input type="number" min="1" step="1" class="ratio-input mini-input" value="${manualRatios[n]||1}"><span class="ratio-pct tabular">0%</span></div>`).join('');
+  updateRatioPercentages();
+}
+function updateRatioPercentages(){
+  const rows = [...document.querySelectorAll('#manRatioList .ratio-row')];
+  let total = 0;
+  rows.forEach(row=>{
+    const name = row.dataset.name;
+    const val = Math.max(1, parseInt(row.querySelector('.ratio-input').value, 10) || 1);
+    manualRatios[name] = val;
+    total += val;
+  });
+  rows.forEach(row=>{
+    const name = row.dataset.name;
+    const pct = total ? Math.round(manualRatios[name]/total*100) : 0;
+    row.querySelector('.ratio-pct').textContent = pct + '%';
+  });
+  document.getElementById('manRatioTotal').textContent = `Total ratio: ${total}`;
+}
+function distributionPreviewText(){
+  const distVal = document.getElementById('manDist').value;
+  if(distVal !== 'Ratio Based') return distVal;
+  const pct = computeRatioPercentages();
+  return pct.length ? `Ratio Based (${pct.map(p=>`${p.name} ${p.pct}%`).join(', ')})` : 'Ratio Based';
+}
+document.getElementById('manDist').addEventListener('change', function(){
+  const isRatio = this.value === 'Ratio Based';
+  document.getElementById('manRatioField').style.display = isRatio ? 'block' : 'none';
+  if(isRatio) renderRatioRows();
+  updateManualPreview();
+});
+document.getElementById('manRatioList').addEventListener('input', ()=>{
+  updateRatioPercentages();
+  updateManualPreview();
+});
+
 function updateManualPreview(){
   const conditions = manualConditionRows().map(row=>{
     const field = row.querySelector('.condition-field').selectedOptions[0].textContent;
@@ -1490,7 +1561,7 @@ function updateManualPreview(){
   const assignees = assignAll && assignAll.checked ? ['All counsellors'] : checkedNames;
   document.getElementById('assignSummary').textContent = assignees.length ? assignees.join(', ') : 'Select counsellors';
   document.getElementById('manualPreviewAssign').textContent = assignees.length ? assignees.join(', ') : 'Unassigned';
-  document.getElementById('manualPreviewDist').textContent = document.getElementById('manDist').value;
+  document.getElementById('manualPreviewDist').textContent = distributionPreviewText();
 }
 document.getElementById('builderManualPanel').addEventListener('input', updateManualPreview);
 document.getElementById('builderManualPanel').addEventListener('change', e=>{
@@ -1503,6 +1574,7 @@ document.getElementById('builderManualPanel').addEventListener('change', e=>{
     } else {
       all.checked = boxes.length>0 && boxes.every(b=>b.checked);
     }
+    if(document.getElementById('manDist').value === 'Ratio Based') renderRatioRows();
   }
   updateManualPreview();
 });
@@ -1532,7 +1604,7 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const assignAll = document.querySelector('#manAssignTo .cv-all');
   const assignBoxes = [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')];
   const assignTo = assignAll && assignAll.checked ? 'All counsellors' : (assignBoxes.filter(b=>b.checked).map(b=>b.value).join(', ') || 'Unassigned');
-  const dist = document.getElementById('manDist').value;
+  const dist = distributionPreviewText();
   const isCatch = false;
 
   const cond = manualConditionRows().map(row=>{
@@ -1550,7 +1622,8 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
 
   const catchIdx = rules.findIndex(r=>r.catch);
   const idx = catchIdx === -1 ? rules.length : catchIdx;
-  rules.splice(idx, 0, {p:idx+1, name, cond, team:assignTo, dist, matches:0, active:true, catch:isCatch});
+  const createdOn = new Date().toLocaleDateString(undefined,{day:'2-digit', month:'short', year:'numeric'});
+  rules.splice(idx, 0, {p:idx+1, name, cond, team:assignTo, dist, matches:0, active:true, catch:isCatch, createdBy:"Satish Rao", createdOn});
   let n = 1;
   rules.forEach(r=>{ if(!r.catch) r.p = n++; });
 
@@ -1559,6 +1632,9 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   if(badge) badge.textContent = rules.length;
 
   nameEl.value='';
+  manualRatios = {};
+  document.getElementById('manDist').value = 'Round robin';
+  document.getElementById('manRatioField').style.display = 'none';
   updateManualPreview();
 
   goTo('rules');
@@ -1655,7 +1731,7 @@ function runSimulation(){
 /* ================= INIT ================= */
 renderDashCapacity(); renderDashFeed(); renderDashRules(); renderDashAlerts();
 populateRulesFilterOptions();
-renderRulesStats(); renderRulesPaused();
+renderRulesStats(); renderRulesPaused(); updateRulesPausedVisibility();
 renderRules(); renderCounsellors(); renderHistory();
 updateRulesDateTime(); setInterval(updateRulesDateTime, 30000);
 runSimulation();
