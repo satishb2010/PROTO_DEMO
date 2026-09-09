@@ -483,6 +483,9 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 }
 .condition-row .assign-picker{min-width:0;}
 .condition-value-picker.disabled{opacity:.45; pointer-events:none;}
+.custom-hours-fields{display:none; align-items:center; gap:8px; padding:8px 5px 4px; margin-top:2px; border-top:1px solid var(--border); font-size:11.5px; color:var(--ink-soft);}
+.custom-hours-fields.show{display:flex;}
+.custom-hours-fields input[type=time]{flex:1; min-width:0;}
 .day-picker{display:flex; gap:6px; flex-wrap:wrap;}
 .schedule-block{display:flex; flex-direction:column; gap:9px;}
 .hours-range{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft);}
@@ -821,7 +824,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
             <h1 class="view-title">Rule Builder</h1>
             <p class="view-sub">Describe how leads should be routed in plain English, or add a rule manually</p>
           </div>
-          <div class="view-actions"><div class="seg" id="builderMode" style="width:190px;"><button data-mode="ai">AI describe</button><button class="on" data-mode="manual">Add manually</button></div></div>
+          <div class="view-actions"><div class="seg" id="builderMode" style="width:190px;"><button class="on" data-mode="manual">Add manually</button><button data-mode="ai">AI describe</button></div></div>
         </div>
         <div class="ai-grid" id="builderGrid">
           <div class="card">
@@ -848,9 +851,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                 <div class="field full"><label>Rule name</label><input type="text" id="manRuleName" value="Walk-in Priority Routing" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
                 <div class="field full"><label>Conditions</label>
                   <div class="condition-stack" id="manualConditions">
-                    <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any">Any</option><option value="include" selected>Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker"><summary class="cv-summary">Walk-in</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All</label><label class="assign-option"><input type="checkbox" value="Facebook Ads"> Facebook Ads</label><label class="assign-option"><input type="checkbox" value="Google Ads"> Google Ads</label><label class="assign-option"><input type="checkbox" value="Website Organic"> Website Organic</label><label class="assign-option"><input type="checkbox" value="Referral"> Referral</label><label class="assign-option"><input type="checkbox" value="Education Fair"> Education Fair</label><label class="assign-option"><input type="checkbox" value="Instagram"> Instagram</label><label class="assign-option"><input type="checkbox" value="Walk-in" checked> Walk-in</label><label class="assign-option"><input type="checkbox" value="LinkedIn"> LinkedIn</label></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
-                    <span class="condition-join" data-op="AND">AND</span>
-                    <div class="condition-row"><select class="condition-field"><option value="budget" selected>Budget tier</option><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any">Any</option><option value="include" selected>Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker"><summary class="cv-summary">Premium</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All</label><label class="assign-option"><input type="checkbox" value="Premium" checked> Premium</label><label class="assign-option"><input type="checkbox" value="Standard"> Standard</label><label class="assign-option"><input type="checkbox" value="High"> High</label></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+                    <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
                   </div>
                   <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
                 </div>
@@ -967,6 +968,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
       <section class="view" id="view-history">
         <div class="view-header">
           <div>
+            <button class="btn btn-sm" type="button" onclick="goTo('rules')" style="margin-bottom:10px;"><svg class="icon icon-sm"><use href="#ic-arrow-left"/></svg>Back</button>
             <h1 class="view-title">Assignment History</h1>
             <p class="view-sub">Full audit trail of every routing decision</p>
           </div>
@@ -1201,6 +1203,7 @@ function renderRules(){
             <button type="button" class="action-menu-item" onclick="toggleRuleActive(${idx})"><svg class="icon icon-sm"><use href="#ic-check"/></svg>${r.active?'Mark paused':'Mark active'}</button>
             <button type="button" class="action-menu-item" onclick="closeActionMenus()"><svg class="icon icon-sm"><use href="#ic-edit"/></svg>Edit</button>
             <button type="button" class="action-menu-item" onclick="duplicateRule(${idx})"><svg class="icon icon-sm"><use href="#ic-copy"/></svg>Duplicate</button>
+            <button type="button" class="action-menu-item" onclick="closeActionMenus(); goTo('history')"><svg class="icon icon-sm"><use href="#ic-history"/></svg>History</button>
             <button type="button" class="action-menu-item danger" onclick="deleteRule(${idx})"><svg class="icon icon-sm"><use href="#ic-trash"/></svg>Delete</button>
           </div>
         </div>
@@ -1374,6 +1377,7 @@ window.goTo = function goTo(view){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===view));
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+view));
   document.getElementById('sidebar').classList.remove('open');
+  if(view === 'builder') resetManualForm();
   window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
 };
 document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click', ()=>goTo(b.dataset.view)));
@@ -1438,7 +1442,6 @@ function manualConditionRows(){ return [...document.querySelectorAll('#manualCon
 const manualConditionValues = {
   source: ['Facebook Ads','Google Ads','Website Organic','Referral','Education Fair','Instagram','Walk-in','LinkedIn'],
   program: ['MBA','Executive MBA','B.Tech CSE','B.Tech Mechanical','BBA','MCA','Diploma in Design','PhD Programs'],
-  budget: ['Standard','Premium','High'],
   city: ['Pune','Mumbai','Bengaluru','Delhi NCR','Chennai','Hyderabad','Other'],
   language: ['English','Hindi','Marathi','Tamil','Other'],
   'Working days': ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
@@ -1446,24 +1449,38 @@ const manualConditionValues = {
 };
 function conditionOpLabel(op){ return op==='any' ? 'Any' : op==='exclude' ? 'Excludes' : 'Include'; }
 function conditionRowValues(row){
-  return [...row.querySelectorAll('.condition-value-picker .assign-options input[type=checkbox]:not(.cv-all)')].filter(b=>b.checked).map(b=>b.value);
+  return [...row.querySelectorAll('.condition-value-picker .assign-options input[type=checkbox]:not(.cv-all)')].filter(b=>b.checked).map(b=>{
+    if(b.classList.contains('cv-custom')){
+      const from = row.querySelector('.custom-hours-from')?.value || '00:00';
+      const to = row.querySelector('.custom-hours-to')?.value || '23:59';
+      return `Custom (${from}–${to})`;
+    }
+    return b.value;
+  });
 }
 function updateConditionValueSummary(row){
   const picker = row.querySelector('.condition-value-picker');
   const summary = picker.querySelector('.cv-summary');
   const all = picker.querySelector('.cv-all');
+  if(!all){ summary.textContent = 'All values'; return; }
   const values = conditionRowValues(row);
   summary.textContent = all.checked ? 'All values' : (values.length ? values.join(', ') : 'Select values');
 }
 function refreshConditionValues(row){
-  const values = manualConditionValues[row.querySelector('.condition-field').value] || [];
+  const field = row.querySelector('.condition-field').value;
+  const values = manualConditionValues[field] || [];
   const optionsEl = row.querySelector('.condition-value-picker .assign-options');
-  optionsEl.innerHTML = `<label class="assign-option"><input type="checkbox" class="cv-all" checked> All</label>` +
+  let html = `<label class="assign-option"><input type="checkbox" class="cv-all" checked> All</label>` +
     values.map(v=>`<label class="assign-option"><input type="checkbox" value="${v}" checked> ${v}</label>`).join('');
+  if(field === 'Working hours'){
+    html += `<label class="assign-option"><input type="checkbox" class="cv-custom" value="Custom"> Custom range</label>` +
+      `<div class="custom-hours-fields"><input type="time" class="mini-input custom-hours-from" value="09:00"><span>to</span><input type="time" class="mini-input custom-hours-to" value="18:00"></div>`;
+  }
+  optionsEl.innerHTML = html;
   updateConditionValueSummary(row);
 }
 manualConditionRows().forEach(row=>{
-  updateConditionValueSummary(row);
+  refreshConditionValues(row);
   row.querySelector('.condition-value-picker').classList.toggle('disabled', row.querySelector('.condition-op').value === 'any');
 });
 document.getElementById('manualConditions').addEventListener('change', e=>{
@@ -1487,6 +1504,11 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
     updateManualPreview();
     return;
   }
+  if(e.target.classList.contains('custom-hours-from') || e.target.classList.contains('custom-hours-to')){
+    updateConditionValueSummary(e.target.closest('.condition-row'));
+    updateManualPreview();
+    return;
+  }
   const picker = e.target.closest('.condition-value-picker');
   if(picker){
     const all = picker.querySelector('.cv-all');
@@ -1496,6 +1518,9 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
     } else {
       all.checked = boxes.length>0 && boxes.every(b=>b.checked);
     }
+    const customBox = picker.querySelector('.cv-custom');
+    const customFields = picker.querySelector('.custom-hours-fields');
+    if(customBox && customFields) customFields.classList.toggle('show', customBox.checked);
     updateConditionValueSummary(picker.closest('.condition-row'));
     updateManualPreview();
     return;
@@ -1606,12 +1631,48 @@ document.getElementById('manualConditions').addEventListener('click', e=>{
 document.getElementById('addConditionBtn').addEventListener('click', ()=>{
   const join = document.createElement('span'); join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND';
   const row = document.createElement('div'); row.className = 'condition-row';
-  row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="budget">Budget tier</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+  row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
   document.getElementById('manualConditions').append(join, row);
   refreshConditionValues(row);
   updateManualPreview();
 });
-updateManualPreview();
+
+function resetManualForm(){
+  const nameEl = document.getElementById('manRuleName');
+  if(nameEl) nameEl.value = '';
+
+  const stack = document.getElementById('manualConditions');
+  if(stack){
+    stack.innerHTML = `<div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>`;
+    refreshConditionValues(stack.querySelector('.condition-row'));
+  }
+
+  document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]').forEach(b=>{ b.checked = false; });
+  const assignSummary = document.getElementById('assignSummary');
+  if(assignSummary) assignSummary.textContent = 'Select counsellors';
+
+  const distEl = document.getElementById('manDist');
+  if(distEl) distEl.value = 'Equal Distribution';
+  const ratioField = document.getElementById('manRatioField');
+  if(ratioField) ratioField.style.display = 'none';
+  manualRatios = {};
+
+  const seg = document.getElementById('builderMode');
+  if(seg){
+    seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.mode === 'manual'));
+    document.getElementById('builderAiPanel').style.display = 'none';
+    document.getElementById('builderManualPanel').style.display = 'block';
+    document.getElementById('builderFormTitle').textContent = 'Rule details';
+    document.getElementById('draftTitle').textContent = 'Rule preview';
+    document.getElementById('draftSub').textContent = 'Updates live as you fill in the form';
+    document.getElementById('builderModeSub').textContent = 'Fill in the fields to add a rule directly — no AI needed';
+  }
+  const aiTextarea = document.querySelector('#builderAiPanel textarea');
+  if(aiTextarea) aiTextarea.value = '';
+
+  updateManualPreview();
+}
+resetManualForm();
 
 document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const nameEl = document.getElementById('manRuleName');
@@ -1650,11 +1711,7 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const badge = document.querySelector('.nav-badge');
   if(badge) badge.textContent = rules.length;
 
-  nameEl.value='';
-  manualRatios = {};
-  document.getElementById('manDist').value = 'Round robin';
-  document.getElementById('manRatioField').style.display = 'none';
-  updateManualPreview();
+  resetManualForm();
 
   goTo('rules');
 });
