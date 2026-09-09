@@ -268,11 +268,12 @@ a{color:var(--accent);}
 .stat-grid-4 .stat-label{font-size:11px;}
 .stat-grid-4 .stat-foot{font-size:11px;}
 .stat-grid-5{grid-template-columns:repeat(5,1fr);}
-.stat-grid-5 .stat-tile{padding:12px 14px; gap:5px;}
-.stat-grid-5 .stat-icon{width:24px; height:24px;}
-.stat-grid-5 .stat-value{font-size:19px;}
-.stat-grid-5 .stat-label{font-size:11px;}
-.stat-grid-5 .stat-foot{font-size:11px;}
+.stat-grid-5 .stat-tile{padding:8px 14px; gap:2px;}
+.stat-grid-5 .stat-icon{width:20px; height:20px;}
+.stat-grid-5 .stat-icon .icon{width:12px; height:12px;}
+.stat-grid-5 .stat-value{font-size:16px;}
+.stat-grid-5 .stat-label{font-size:10.5px;}
+.stat-grid-5 .stat-foot{font-size:10.5px;}
 .stat-tile.clickable{cursor:pointer; transition:border-color .15s, box-shadow .15s;}
 .stat-tile.clickable:hover{border-color:var(--border-strong);}
 .stat-tile.tile-active{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
@@ -792,7 +793,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
             <div class="header-datetime" id="rulesDateTime"></div>
             <div class="search-box" style="width:220px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
             <button class="btn" type="button" id="rulesSettingsBtn"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
-            <button class="btn" type="button" id="rulesFilterToggle"><svg class="icon"><use href="#ic-filter"/></svg>Filter</button>
             <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
           </div>
         </div>
@@ -812,10 +812,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 
         <div class="card">
           <div class="card-head" style="flex-wrap:wrap; gap:12px;">
+            <button class="btn btn-sm" type="button" id="rulesFilterToggle"><svg class="icon icon-sm"><use href="#ic-filter"/></svg>Filter</button>
             <div class="pillbar" id="rulesExtraFilters" style="display:none;">
               <select class="mini-select" id="rulesCreatedByFilter"><option value="all">Created by: All</option></select>
               <select class="mini-select" id="rulesDistFilter"><option value="all">Distribution: All</option></select>
               <select class="mini-select" id="rulesAssignToFilter"><option value="all">Assign to: All</option></select>
+              <button type="button" class="icon-btn" id="rulesFilterClose" title="Close filters" aria-label="Close filters"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>
             </div>
           </div>
           <div class="table-wrap">
@@ -861,10 +863,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
               <div class="manual-form-grid">
                 <div class="field full"><label>Rule name</label><input type="text" id="manRuleName" value="Walk-in Priority Routing" placeholder="e.g. Instagram · MBA &amp; BBA Split"></div>
                 <div class="field full"><label>Conditions</label>
+                  <div class="card-sub" id="manCriteriaHint" style="margin:-2px 0 2px;"></div>
                   <div class="condition-stack" id="manualConditions">
                     <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
                   </div>
                   <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
+                  <div id="manConditionsError" style="display:none; color:var(--critical); font-size:12.5px; font-weight:600; margin-top:6px;"></div>
                 </div>
                 <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All counsellors</label><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
                 <div class="field"><label>Distribution</label><select id="manDist"><option>Equal Distribution</option><option>Ratio Based</option></select></div>
@@ -1068,9 +1072,9 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 </div>
 
 <div class="modal-overlay" id="ruleHistoryModal" style="display:none;">
-  <div class="modal-card">
-    <div class="modal-head"><div class="modal-title">Rule history</div><button type="button" class="icon-btn" onclick="closeRuleHistory()" aria-label="Close"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
-    <div class="modal-body" id="ruleHistoryBody"></div>
+  <div class="modal-card" style="width:720px; max-width:92vw;">
+    <div class="modal-head"><div class="modal-title" id="ruleHistoryTitle">Rule history</div><button type="button" class="icon-btn" onclick="closeRuleHistory()" aria-label="Close"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+    <div class="modal-body" id="ruleHistoryBody" style="padding:0; gap:0;"></div>
   </div>
 </div>
 
@@ -1118,14 +1122,42 @@ const counsellors = [
 ];
 
 const rules = [
-  {p:1, name:"International Fee-Paying Leads", cond:[["source","Include","Education Fair"],["city","Include","Mumbai, Delhi NCR","AND"]], team:"Priya Sharma, Fatima Sheikh", dist:"Equal Distribution", matches:210, active:true, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"15 Jan 2026", editedBy:null, editedOn:null},
-  {p:2, name:"MBA · Facebook High-Intent", cond:[["program","Include","MBA"],["source","Include","Facebook Ads","AND"]], team:"Priya Sharma, Neha Kulkarni", dist:"Ratio Based (Priya Sharma 60%, Neha Kulkarni 40%)", matches:1580, active:true, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"22 Jan 2026", editedBy:"Satish Rao", editedOn:"20 Feb 2026"},
-  {p:3, name:"Engineering · Website Leads", cond:[["program","Include","B.Tech CSE, B.Tech Mechanical"],["source","Include","Website Organic","AND"]], team:"Rahul Deshmukh, Sanjay Verma", dist:"Equal Distribution", matches:1240, active:true, catch:false, deleted:false, createdBy:"Divya Menon", createdOn:"03 Feb 2026", editedBy:null, editedOn:null},
-  {p:4, name:"Marathi-Speaking · Pune", cond:[["city","Include","Pune"],["language","Include","Marathi","AND"]], team:"Rahul Deshmukh", dist:"Equal Distribution", matches:460, active:true, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"18 Feb 2026", editedBy:null, editedOn:null},
-  {p:5, name:"After-Hours Auto Queue", cond:[["Working hours","Include","Night (22:00–06:00), After hours"]], team:"Divya Menon", dist:"Equal Distribution", matches:340, active:false, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"09 Apr 2026", editedBy:null, editedOn:null},
-  {p:6, name:"LinkedIn Executive Pilot", cond:[["source","Include","LinkedIn"],["program","Include","Executive MBA","AND"]], team:"Vikram Rao", dist:"Equal Distribution", matches:0, active:false, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"30 Jun 2026", editedBy:"Divya Menon", editedOn:"12 Jul 2026"},
-  {p:7, name:"Diploma & Walk-in", cond:[["source","Include","Walk-in"]], team:"Karan Mehta", dist:"Equal Distribution", matches:610, active:true, catch:false, deleted:true, deletedOn:"10 Mar 2026", createdBy:"Divya Menon", createdOn:"27 Feb 2026", editedBy:null, editedOn:null},
-  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Divya Menon", dist:"Equal Distribution", matches:170, active:true, catch:true, deleted:false, createdBy:"Satish Rao", createdOn:"01 Jan 2026", editedBy:null, editedOn:null},
+  {p:1, name:"International Fee-Paying Leads", cond:[["source","Include","Education Fair"],["city","Include","Mumbai, Delhi NCR","AND"]], team:"Priya Sharma, Fatima Sheikh", dist:"Equal Distribution", matches:210, active:true, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"15 Jan 2026", editedBy:null, editedOn:null, hist:[
+    {t:"15 Jan 2026 · 9:45 AM", act:"Activated", by:"Satish Rao", details:"Rule activated and started routing qualifying leads."},
+    {t:"15 Jan 2026 · 9:20 AM", act:"Created", by:"Satish Rao", details:"Rule created to route international fee-paying leads from education fairs."},
+  ]},
+  {p:2, name:"MBA · Facebook High-Intent", cond:[["program","Include","MBA"],["source","Include","Facebook Ads","AND"]], team:"Priya Sharma, Neha Kulkarni", dist:"Ratio Based (Priya Sharma 60%, Neha Kulkarni 40%)", matches:1580, active:true, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"22 Jan 2026", editedBy:"Satish Rao", editedOn:"20 Feb 2026", hist:[
+    {t:"20 Feb 2026 · 3:10 PM", act:"Edited", by:"Satish Rao", details:"Updated distribution split to Priya Sharma 60% / Neha Kulkarni 40%."},
+    {t:"22 Jan 2026 · 11:05 AM", act:"Activated", by:"Satish Rao", details:"Rule activated and started routing qualifying leads."},
+    {t:"22 Jan 2026 · 10:40 AM", act:"Created", by:"Satish Rao", details:"Rule created from template “Facebook High-Intent MBA”."},
+  ]},
+  {p:3, name:"Engineering · Website Leads", cond:[["program","Include","B.Tech CSE, B.Tech Mechanical"],["source","Include","Website Organic","AND"]], team:"Rahul Deshmukh, Sanjay Verma", dist:"Equal Distribution", matches:1240, active:true, catch:false, deleted:false, createdBy:"Divya Menon", createdOn:"03 Feb 2026", editedBy:null, editedOn:null, hist:[
+    {t:"03 Feb 2026 · 2:15 PM", act:"Activated", by:"Divya Menon", details:"Rule activated and started routing qualifying leads."},
+    {t:"03 Feb 2026 · 1:50 PM", act:"Created", by:"Divya Menon", details:"Rule created to route B.Tech leads from organic website traffic."},
+  ]},
+  {p:4, name:"Marathi-Speaking · Pune", cond:[["city","Include","Pune"],["language","Include","Marathi","AND"]], team:"Rahul Deshmukh", dist:"Equal Distribution", matches:460, active:true, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"18 Feb 2026", editedBy:null, editedOn:null, hist:[
+    {t:"18 Feb 2026 · 4:30 PM", act:"Activated", by:"Satish Rao", details:"Rule activated and started routing qualifying leads."},
+    {t:"18 Feb 2026 · 4:05 PM", act:"Created", by:"Satish Rao", details:"Rule created for Marathi-speaking leads based in Pune."},
+  ]},
+  {p:5, name:"After-Hours Auto Queue", cond:[["Working hours","Include","Night (22:00–06:00), After hours"]], team:"Divya Menon", dist:"Equal Distribution", matches:340, active:false, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"09 Apr 2026", editedBy:null, editedOn:null, hist:[
+    {t:"12 May 2026 · 6:00 PM", act:"Paused", by:"Satish Rao", details:"Paused after-hours routing pending a WhatsApp timing fix."},
+    {t:"09 Apr 2026 · 8:15 PM", act:"Activated", by:"Satish Rao", details:"Rule activated and started routing qualifying leads."},
+    {t:"09 Apr 2026 · 7:50 PM", act:"Created", by:"Satish Rao", details:"Rule created to queue after-hours leads for next-day follow-up."},
+  ]},
+  {p:6, name:"LinkedIn Executive Pilot", cond:[["source","Include","LinkedIn"],["program","Include","Executive MBA","AND"]], team:"Vikram Rao", dist:"Equal Distribution", matches:0, active:false, catch:false, deleted:false, createdBy:"Satish Rao", createdOn:"30 Jun 2026", editedBy:"Divya Menon", editedOn:"12 Jul 2026", hist:[
+    {t:"12 Jul 2026 · 5:40 PM", act:"Paused", by:"Divya Menon", details:"Paused pending review of pilot results."},
+    {t:"12 Jul 2026 · 5:20 PM", act:"Edited", by:"Divya Menon", details:"Narrowed condition to Executive MBA applicants only."},
+    {t:"30 Jun 2026 · 10:30 AM", act:"Created", by:"Satish Rao", details:"Rule created as a pilot for LinkedIn executive-program leads."},
+  ]},
+  {p:7, name:"Diploma & Walk-in", cond:[["source","Include","Walk-in"]], team:"Karan Mehta", dist:"Equal Distribution", matches:610, active:true, catch:false, deleted:true, deletedOn:"10 Mar 2026", createdBy:"Divya Menon", createdOn:"27 Feb 2026", editedBy:null, editedOn:null, hist:[
+    {t:"10 Mar 2026 · 11:00 AM", act:"Deleted", by:"Divya Menon", details:"Rule deleted — walk-in leads now handled by an updated rule."},
+    {t:"27 Feb 2026 · 9:35 AM", act:"Activated", by:"Divya Menon", details:"Rule activated and started routing qualifying leads."},
+    {t:"27 Feb 2026 · 9:10 AM", act:"Created", by:"Divya Menon", details:"Rule created to route walk-in leads to the diploma counselling team."},
+  ]},
+  {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Divya Menon", dist:"Equal Distribution", matches:170, active:true, catch:true, deleted:false, createdBy:"Satish Rao", createdOn:"01 Jan 2026", editedBy:null, editedOn:null, hist:[
+    {t:"01 Jan 2026 · 12:15 AM", act:"Activated", by:"Satish Rao", details:"Rule activated and started routing qualifying leads."},
+    {t:"01 Jan 2026 · 12:00 AM", act:"Created", by:"Satish Rao", details:"Default catch-all rule created for unmatched leads."},
+  ]},
 ];
 
 /* ---- Routing criteria settings (feeds the Conditions field dropdown in the builder) ---- */
@@ -1274,7 +1306,7 @@ function renderRules(){
         (rulesStatusVal==='all' || (rulesStatusVal==='active' ? r.active : !r.active)) &&
         (rulesCreatedByVal==='all' || r.createdBy===rulesCreatedByVal) &&
         (rulesDistVal==='all' || r.dist===rulesDistVal) &&
-        (rulesAssignToVal==='all' || r.team===rulesAssignToVal) &&
+        (rulesAssignToVal==='all' || r.team.split(',').map(s=>s.trim()).includes(rulesAssignToVal)) &&
         (r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
       );
   document.getElementById('rulesBody').innerHTML = rows.length ? rows.map(r=>{
@@ -1345,13 +1377,19 @@ window.toggleRuleActive = function(idx){
   renderRules(); renderRulesStats(); renderRulesPaused();
 };
 window.duplicateRule = function(idx){
-  const src = rules[idx];
-  const copy = Object.assign({}, src, {name: src.name + ' (copy)', matches:0, deleted:false, deletedOn:undefined, createdBy:"Satish Rao", createdOn:new Date().toLocaleDateString(undefined,{day:'2-digit', month:'short', year:'numeric'}), editedBy:null, editedOn:null});
-  rules.splice(idx+1, 0, copy);
-  renumberRules();
   closeActionMenus();
-  renderRules(); renderRulesStats(); renderRulesPaused(); populateRulesFilterOptions();
-  refreshRuleBadge();
+  const src = rules[idx];
+  goTo('builder');
+  editingRuleIdx = null;
+  populateManualFormFromRule(src);
+  document.getElementById('manRuleName').value = src.name + ' (copy)';
+  const titleEl = document.getElementById('builderViewTitle');
+  if(titleEl) titleEl.textContent = 'Duplicate Rule';
+  const subEl = document.getElementById('builderViewSub');
+  if(subEl) subEl.textContent = `Duplicating “${src.name}” — review the details, then save as a new rule`;
+  const saveBtnText = document.getElementById('manualSaveBtnText');
+  if(saveBtnText) saveBtnText.textContent = 'Save rule';
+  updateManualPreview();
 };
 window.deleteRule = function(idx){
   rules[idx].deleted = true;
@@ -1456,7 +1494,7 @@ function populateRulesFilterOptions(){
   const live = rules.filter(r=>!r.deleted);
   const creators = [...new Set(live.map(r=>r.createdBy))].sort();
   const dists = [...new Set(live.map(r=>r.dist))].sort();
-  const assignees = [...new Set(live.map(r=>r.team))].sort();
+  const assignees = [...new Set(live.flatMap(r=>r.team.split(',').map(s=>s.trim())))].sort();
   byEl.innerHTML = '<option value="all">Created by: All</option>' + creators.map(c=>`<option value="${c}">Created by: ${c}</option>`).join('');
   distEl.innerHTML = '<option value="all">Distribution: All</option>' + dists.map(d=>`<option value="${d}">Distribution: ${d}</option>`).join('');
   assignEl.innerHTML = '<option value="all">Assign to: All</option>' + assignees.map(a=>`<option value="${a}">Assign to: ${a}</option>`).join('');
@@ -1534,9 +1572,13 @@ function updateRulesPausedVisibility(){
   const card = document.getElementById('rulesPausedCard');
   if(card) card.style.display = (!rulesShowDeleted && rulesStatusVal === 'paused') ? '' : 'none';
 }
-document.getElementById('rulesFilterToggle').addEventListener('click', ()=>{
-  const extra = document.getElementById('rulesExtraFilters');
-  extra.style.display = extra.style.display === 'none' ? 'flex' : 'none';
+document.getElementById('rulesFilterToggle').addEventListener('click', function(){
+  document.getElementById('rulesExtraFilters').style.display = 'flex';
+  this.style.display = 'none';
+});
+document.getElementById('rulesFilterClose').addEventListener('click', ()=>{
+  document.getElementById('rulesExtraFilters').style.display = 'none';
+  document.getElementById('rulesFilterToggle').style.display = '';
 });
 document.getElementById('rulesCreatedByFilter').addEventListener('change', function(){ rulesCreatedByVal = this.value; renderRules(); });
 document.getElementById('rulesDistFilter').addEventListener('change', function(){ rulesDistVal = this.value; renderRules(); });
@@ -1771,13 +1813,32 @@ document.getElementById('manualConditions').addEventListener('click', e=>{
   row.remove();
   updateManualPreview();
 });
+function conditionRowMarkup(selectedField){
+  return `<select class="condition-field">${conditionFieldOptionsHtml(selectedField)}</select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+}
+function renderCriteriaHint(){
+  const el = document.getElementById('manCriteriaHint');
+  if(!el) return;
+  if(!routingCriteria.length){ el.textContent = ''; return; }
+  el.textContent = `All ${routingCriteria.length} routing criteria are required for every rule: ${routingCriteria.map(criteriaLabel).join(', ')}`;
+}
+function missingCriteria(){
+  const used = manualConditionRows().map(row=>row.querySelector('.condition-field').value);
+  return routingCriteria.filter(c=>!used.includes(c));
+}
+function hideConditionsError(){
+  const el = document.getElementById('manConditionsError');
+  if(el) el.style.display = 'none';
+}
+document.getElementById('manualConditions').addEventListener('change', hideConditionsError);
 document.getElementById('addConditionBtn').addEventListener('click', ()=>{
   const join = document.createElement('span'); join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND';
   const row = document.createElement('div'); row.className = 'condition-row';
-  row.innerHTML = `<select class="condition-field">${conditionFieldOptionsHtml()}</select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+  row.innerHTML = conditionRowMarkup();
   document.getElementById('manualConditions').append(join, row);
   refreshConditionValues(row);
   updateManualPreview();
+  hideConditionsError();
 });
 
 let editingRuleIdx = null;
@@ -1795,9 +1856,12 @@ function resetManualForm(){
 
   const stack = document.getElementById('manualConditions');
   if(stack){
-    stack.innerHTML = `<div class="condition-row"><select class="condition-field">${conditionFieldOptionsHtml()}</select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>`;
-    refreshConditionValues(stack.querySelector('.condition-row'));
+    const fields = routingCriteria.length ? routingCriteria : ['source'];
+    stack.innerHTML = fields.map((f,i)=> (i>0 ? `<span class="condition-join" data-op="AND">AND</span>` : '') + `<div class="condition-row">${conditionRowMarkup(f)}</div>`).join('');
+    manualConditionRows().forEach(row=>refreshConditionValues(row));
   }
+  renderCriteriaHint();
+  hideConditionsError();
 
   document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]').forEach(b=>{ b.checked = false; });
   const assignSummary = document.getElementById('assignSummary');
@@ -1856,7 +1920,7 @@ function populateManualFormFromRule(r){
         stack.appendChild(join);
       }
       const row = document.createElement('div'); row.className = 'condition-row';
-      row.innerHTML = `<select class="condition-field">${conditionFieldOptionsHtml(c[0])}</select><select class="condition-op"><option value="any">Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+      row.innerHTML = conditionRowMarkup(c[0]);
       stack.appendChild(row);
       const opRaw = opRawFromLabel[c[1]] || 'include';
       row.querySelector('.condition-op').value = opRaw;
@@ -1891,7 +1955,19 @@ function populateManualFormFromRule(r){
       }
       updateConditionValueSummary(row);
     });
+    // the stored rule may predate some criteria that are now mandatory — add a blank slot for each so it's easy to complete
+    const covered = r.cond.map(c=>c[0]);
+    routingCriteria.filter(f=>!covered.includes(f)).forEach(f=>{
+      const join = document.createElement('span'); join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND';
+      stack.appendChild(join);
+      const row = document.createElement('div'); row.className = 'condition-row';
+      row.innerHTML = conditionRowMarkup(f);
+      stack.appendChild(row);
+      refreshConditionValues(row);
+    });
   }
+  renderCriteriaHint();
+  hideConditionsError();
 
   document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]').forEach(b=>{ b.checked = false; });
   if(r.team === 'All counsellors'){
@@ -1914,15 +1990,34 @@ function populateManualFormFromRule(r){
 }
 
 /* ---- Rule history modal ---- */
+function historyActivityChip(act){
+  const cls = (act==='Activated' || act==='Created' || act==='Restored') ? 'chip-success'
+    : (act==='Paused' || act==='Deleted') ? 'chip-critical'
+    : 'chip-neutral';
+  return `<span class="chip ${cls}"><span class="dot"></span>${act}</span>`;
+}
+function buildRuleHistory(r){
+  if(r.hist && r.hist.length) return r.hist;
+  const rows = [];
+  if(r.editedBy) rows.push({t:r.editedOn, act:'Edited', by:r.editedBy, details:'Rule conditions or assignment updated.'});
+  rows.push({t:r.createdOn, act:'Created', by:r.createdBy, details:'Rule created.'});
+  return rows;
+}
 window.showRuleHistory = function(idx){
   closeActionMenus();
   const r = rules[idx];
+  const titleEl = document.getElementById('ruleHistoryTitle');
+  if(titleEl) titleEl.textContent = `Rule history — ${r.name}`;
+  const rows = buildRuleHistory(r);
   document.getElementById('ruleHistoryBody').innerHTML = `
-    <div class="kv-row"><span class="kv-label">Rule name</span><span class="kv-value">${r.name}</span></div>
-    <div class="kv-row"><span class="kv-label">Created on</span><span class="kv-value">${r.createdOn}</span></div>
-    <div class="kv-row"><span class="kv-label">Created by</span><span class="kv-value">${r.createdBy}</span></div>
-    <div class="kv-row"><span class="kv-label">Edited by</span><span class="kv-value">${r.editedBy ? `${r.editedBy} · ${r.editedOn}` : 'Not edited yet'}</span></div>
-    <div class="kv-row"><span class="kv-label">Leads matched</span><span class="kv-value">${r.matches.toLocaleString()}</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date &amp; time</th><th>Activity</th><th>Changed by</th><th>Details</th></tr></thead>
+        <tbody>
+          ${rows.map(h=>`<tr><td class="tabular" style="white-space:nowrap;">${h.t}</td><td>${historyActivityChip(h.act)}</td><td>${h.by}</td><td>${h.details}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
   `;
   document.getElementById('ruleHistoryModal').style.display = 'flex';
 };
@@ -1985,6 +2080,19 @@ document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const nameEl = document.getElementById('manRuleName');
   const name = (nameEl.value||'').trim();
   if(!name){ nameEl.focus(); return; }
+
+  const missing = missingCriteria();
+  const errEl = document.getElementById('manConditionsError');
+  if(missing.length){
+    if(errEl){
+      errEl.textContent = `Add a condition for every routing criterion before saving — missing: ${missing.map(criteriaLabel).join(', ')}.`;
+      errEl.style.display = 'block';
+    }
+    return;
+  } else if(errEl){
+    errEl.style.display = 'none';
+  }
+
   const assignAll = document.querySelector('#manAssignTo .cv-all');
   const assignBoxes = [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')];
   const assignTo = assignAll && assignAll.checked ? 'All counsellors' : (assignBoxes.filter(b=>b.checked).map(b=>b.value).join(', ') || 'Unassigned');
