@@ -790,6 +790,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
           </div>
           <div class="view-actions">
             <div class="header-datetime" id="rulesDateTime"></div>
+            <button class="btn" type="button" id="rulesSettingsBtn"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
             <button class="btn" type="button" id="rulesFilterToggle"><svg class="icon"><use href="#ic-filter"/></svg>Filter</button>
             <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
           </div>
@@ -824,7 +825,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
           </div>
           <div class="table-wrap">
             <table class="rules-table">
-              <thead><tr><th>Rule name</th><th>Rule details</th><th>Status</th><th>All match leads</th><th class="actions-col">Actions</th></tr></thead>
+              <thead><tr><th>Rule name</th><th>Rule details</th><th>Assign to</th><th>Status</th><th>All match leads</th><th class="actions-col">Actions</th></tr></thead>
               <tbody id="rulesBody"></tbody>
             </table>
           </div>
@@ -1078,6 +1079,34 @@ input[type=range]{flex:1; accent-color:var(--accent);}
   </div>
 </div>
 
+<div class="modal-overlay" id="criteriaModal" style="display:none;">
+  <div class="modal-card" style="width:460px;">
+    <div class="modal-head"><div class="modal-title">Routing criteria settings</div><button type="button" class="icon-btn" onclick="closeCriteriaModal()" aria-label="Close"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
+    <div class="modal-body">
+      <div class="field full">
+        <label>Time zone</label>
+        <select class="mini-select" id="settingsTimezoneSelect" style="width:100%;">
+          <option value="Asia/Kolkata">Asia/Kolkata (IST, UTC+05:30)</option>
+          <option value="Asia/Dubai">Asia/Dubai (GST, UTC+04:00)</option>
+          <option value="Asia/Singapore">Asia/Singapore (SGT, UTC+08:00)</option>
+          <option value="Europe/London">Europe/London (GMT/BST)</option>
+          <option value="America/New_York">America/New York (ET)</option>
+          <option value="UTC">UTC</option>
+        </select>
+        <div class="card-sub" style="margin-top:4px;">Used for SLA timers and Working hours conditions.</div>
+      </div>
+      <div>
+        <p class="card-sub" style="margin:2px 0 2px;">Define the fields available when building rule conditions.</p>
+        <div id="criteriaList" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <button type="button" class="btn manual-add-condition" id="addCriteriaBtn" style="margin-top:10px; align-self:flex-start;"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add Criteria</button>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:2px;">
+        <button type="button" class="btn btn-primary" style="flex:1; justify-content:center;" onclick="saveCriteriaSettings()"><svg class="icon"><use href="#ic-check"/></svg>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ================= DATA ================= */
 const counsellors = [
@@ -1103,6 +1132,29 @@ const rules = [
   {p:7, name:"Diploma & Walk-in", cond:[["source","Include","Walk-in"]], team:"Karan Mehta", dist:"Equal Distribution", matches:610, active:true, catch:false, deleted:true, deletedOn:"10 Mar 2026", createdBy:"Divya Menon", createdOn:"27 Feb 2026", editedBy:null, editedOn:null},
   {p:8, name:"Default Round Robin", cond:[["else","=","no match above"]], team:"Divya Menon", dist:"Equal Distribution", matches:170, active:true, catch:true, deleted:false, createdBy:"Satish Rao", createdOn:"01 Jan 2026", editedBy:null, editedOn:null},
 ];
+
+/* ---- Routing criteria settings (feeds the Conditions field dropdown in the builder) ---- */
+const criteriaFieldOptions = [
+  {value:'source', label:'Source'},
+  {value:'program', label:'Program'},
+  {value:'city', label:'City'},
+  {value:'language', label:'Preferred language'},
+  {value:'Working days', label:'Working days'},
+  {value:'Working hours', label:'Working hours'},
+];
+let routingCriteria = ['source','program','city','language','Working days','Working hours'];
+let routingTimezone = 'Asia/Kolkata';
+function conditionFieldOptionsHtml(selectedValue){
+  const list = routingCriteria.length ? routingCriteria.slice() : ['source'];
+  // keep an existing rule's stored field selectable even if it's since been removed from Settings,
+  // so editing an older rule never silently swaps its condition to a different field
+  if(selectedValue && !list.includes(selectedValue)) list.push(selectedValue);
+  return list.map(val=>{
+    const opt = criteriaFieldOptions.find(o=>o.value===val);
+    const label = opt ? opt.label : val;
+    return `<option value="${val}"${val===selectedValue ? ' selected' : ''}>${label}</option>`;
+  }).join('');
+}
 
 const activity = [
   {t:"2 min ago", lead:"LD-48213 · Ananya Gupta", rule:"MBA · Facebook High-Intent", to:"Priya Sharma", icon:"ic-check", cls:"i-success"},
@@ -1154,6 +1206,17 @@ function condText(cond){
     const join = i===0 ? '' : `<span class="kw">${c[3]||'AND'}</span> `;
     return `${join}${c[0]} <b>${c[1]}</b> ${c[2]}`;
   }).join(' ');
+}
+function criteriaLabel(field){
+  const opt = criteriaFieldOptions.find(o=>o.value===field);
+  return opt ? opt.label : field;
+}
+function condTextRows(cond){
+  return cond.map((c,i)=>{
+    if(c[0]==="else") return `<div class="code-pill"><span class="kw">IF</span> no earlier rule matched</div>`;
+    const lead = i===0 ? '<span class="kw">IF</span>' : `<span class="kw">${c[3]||'AND'}</span>`;
+    return `<div class="code-pill">${lead} ${criteriaLabel(c[0])} <b>${c[1]}</b> ${c[2]}</div>`;
+  }).join('');
 }
 
 /* dashboard capacity (top 3, matches reference) */
@@ -1238,9 +1301,10 @@ function renderRules(){
         <div class="cell-sub">Created by ${r.createdBy} · Priority ${r.catch?'—':r.p}</div>
       </td>
       <td style="min-width:260px;">
-        <div class="code-pill"><span class="kw">IF</span> ${condText(r.cond)} <span class="kw">THEN</span> assign to <b>${r.team}</b></div>
+        <div style="display:flex; flex-direction:column; gap:4px;">${condTextRows(r.cond)}</div>
         <div class="cell-sub" style="margin-top:6px;">Distribution: <b style="color:var(--ink-soft); font-weight:600;">${r.dist}</b></div>
       </td>
+      <td>${r.team}</td>
       <td>${r.deleted ? `<span class="chip chip-critical"><span class="dot"></span>Deleted ${r.deletedOn||''}</span>` : (r.active?'<span class="chip chip-success"><span class="dot"></span>Active</span>':'<span class="chip chip-neutral"><span class="dot"></span>Paused</span>')}</td>
       <td class="tabular">${r.matches.toLocaleString()}</td>
       <td class="actions-col">
@@ -1250,7 +1314,7 @@ function renderRules(){
         </div>
       </td>
     </tr>`;
-  }).join('') : `<tr><td colspan="5" class="empty-note">${rulesShowDeleted ? 'No deleted rules.' : (rules.filter(r=>!r.deleted).length ? 'No rules match your filters.' : "No rules yet — click “New rule” to add your first one.")}</td></tr>`;
+  }).join('') : `<tr><td colspan="6" class="empty-note">${rulesShowDeleted ? 'No deleted rules.' : (rules.filter(r=>!r.deleted).length ? 'No rules match your filters.' : "No rules yet — click “New rule” to add your first one.")}</td></tr>`;
 }
 
 /* rule row actions menu */
@@ -1710,7 +1774,7 @@ document.getElementById('manualConditions').addEventListener('click', e=>{
 document.getElementById('addConditionBtn').addEventListener('click', ()=>{
   const join = document.createElement('span'); join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND';
   const row = document.createElement('div'); row.className = 'condition-row';
-  row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+  row.innerHTML = `<select class="condition-field">${conditionFieldOptionsHtml()}</select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
   document.getElementById('manualConditions').append(join, row);
   refreshConditionValues(row);
   updateManualPreview();
@@ -1731,7 +1795,7 @@ function resetManualForm(){
 
   const stack = document.getElementById('manualConditions');
   if(stack){
-    stack.innerHTML = `<div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>`;
+    stack.innerHTML = `<div class="condition-row"><select class="condition-field">${conditionFieldOptionsHtml()}</select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>`;
     refreshConditionValues(stack.querySelector('.condition-row'));
   }
 
@@ -1792,10 +1856,8 @@ function populateManualFormFromRule(r){
         stack.appendChild(join);
       }
       const row = document.createElement('div'); row.className = 'condition-row';
-      row.innerHTML = `<select class="condition-field"><option value="source">Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any">Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
+      row.innerHTML = `<select class="condition-field">${conditionFieldOptionsHtml(c[0])}</select><select class="condition-op"><option value="any">Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>`;
       stack.appendChild(row);
-      const fieldEl = row.querySelector('.condition-field');
-      if([...fieldEl.options].some(o=>o.value === c[0])) fieldEl.value = c[0];
       const opRaw = opRawFromLabel[c[1]] || 'include';
       row.querySelector('.condition-op').value = opRaw;
       refreshConditionValues(row);
@@ -1870,6 +1932,54 @@ window.closeRuleHistory = function(){
 document.getElementById('ruleHistoryModal').addEventListener('click', e=>{
   if(e.target.id === 'ruleHistoryModal') closeRuleHistory();
 });
+
+/* ---- Routing criteria settings ---- */
+function renderCriteriaList(){
+  const listEl = document.getElementById('criteriaList');
+  const optionsHtml = criteriaFieldOptions.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+  listEl.innerHTML = routingCriteria.map((val, i)=>`
+    <div class="ratio-row" data-idx="${i}">
+      <span class="ratio-name">Criteria ${i+1}</span>
+      <select class="mini-select criteria-field-select" style="flex:1; min-width:0;">${optionsHtml}</select>
+      <button type="button" class="condition-remove" aria-label="Remove criteria"${routingCriteria.length<=1 ? ' disabled style="opacity:.4; cursor:not-allowed;"' : ''}><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>
+    </div>`).join('');
+  [...listEl.querySelectorAll('.criteria-field-select')].forEach((sel, i)=>{ sel.value = routingCriteria[i]; });
+}
+
+window.openCriteriaModal = function(){
+  renderCriteriaList();
+  document.getElementById('settingsTimezoneSelect').value = routingTimezone;
+  document.getElementById('criteriaModal').style.display = 'flex';
+};
+window.closeCriteriaModal = function(){
+  document.getElementById('criteriaModal').style.display = 'none';
+};
+document.getElementById('rulesSettingsBtn').addEventListener('click', openCriteriaModal);
+document.getElementById('criteriaModal').addEventListener('click', e=>{
+  if(e.target.id === 'criteriaModal') closeCriteriaModal();
+});
+document.getElementById('settingsTimezoneSelect').addEventListener('change', function(){
+  routingTimezone = this.value;
+});
+document.getElementById('addCriteriaBtn').addEventListener('click', ()=>{
+  routingCriteria.push('source');
+  renderCriteriaList();
+});
+document.getElementById('criteriaList').addEventListener('click', e=>{
+  const btn = e.target.closest('.condition-remove');
+  if(!btn || btn.disabled || routingCriteria.length<=1) return;
+  const row = btn.closest('.ratio-row');
+  routingCriteria.splice(parseInt(row.dataset.idx,10), 1);
+  renderCriteriaList();
+});
+document.getElementById('criteriaList').addEventListener('change', e=>{
+  if(!e.target.classList.contains('criteria-field-select')) return;
+  const row = e.target.closest('.ratio-row');
+  routingCriteria[parseInt(row.dataset.idx,10)] = e.target.value;
+});
+window.saveCriteriaSettings = function(){
+  closeCriteriaModal();
+};
 
 document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const nameEl = document.getElementById('manRuleName');
