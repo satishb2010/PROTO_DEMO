@@ -282,7 +282,6 @@ a{color:var(--accent);}
 .modal-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border);}
 .modal-title{font-weight:700; font-size:15px; color:var(--ink);}
 .modal-body{padding:16px 18px; display:flex; flex-direction:column; gap:12px;}
-.header-datetime{font-size:12.4px; font-weight:600; color:var(--ink-soft); align-self:center; white-space:nowrap;}
 .stat-tile{
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-card); padding:16px 17px;
   box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:9px; min-width:0;
@@ -524,6 +523,8 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .assign-picker summary::after{content:'⌄'; float:right; color:var(--ink-faint);}
 .assign-options{position:absolute; z-index:10; top:calc(100% + 5px); left:0; right:0; max-height:220px; overflow:auto; padding:7px; background:var(--surface); border:1px solid var(--border); border-radius:9px; box-shadow:var(--shadow-md);}
 .assign-option{display:flex; align-items:center; gap:8px; padding:7px 5px; border-radius:6px; font-size:12px; cursor:pointer;}
+.assign-picker-sm{min-width:170px;}
+.assign-picker-sm summary{padding:6px 9px; font-size:12.2px; min-height:auto; border-radius:8px;}
 .assign-option:hover{background:var(--surface-sunken);}
 .assign-option input{accent-color:var(--accent);}
 @media (max-width:700px){.manual-form-grid{grid-template-columns:1fr;}.condition-row{grid-template-columns:1fr 1fr 1fr 28px;}.manual-actions{flex-direction:column;}}
@@ -657,12 +658,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
   <div class="main">
     <header class="topbar">
       <button class="menu-btn" id="menuBtn"><svg class="icon icon-lg"><use href="#ic-grip"/></svg></button>
-      <div class="search-box">
-        <svg class="icon"><use href="#ic-search"/></svg>
-        <input type="text" placeholder="Search leads, rules or counsellors…">
-        <kbd>⌘K</kbd>
-      </div>
-      <div class="live-pill"><span class="live-dot"></span>Live routing active</div>
       <div class="topbar-spacer"></div>
       <div class="topbar-actions">
         <button class="icon-btn"><svg class="icon"><use href="#ic-bell"/></svg><span class="dot"></span></button>
@@ -790,7 +785,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
             <h1 class="view-title">Assignment Rules</h1>
           </div>
           <div class="view-actions">
-            <div class="header-datetime" id="rulesDateTime"></div>
             <div class="search-box" style="width:220px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
             <button class="btn" type="button" id="rulesSettingsBtn"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
             <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
@@ -813,11 +807,16 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         <div class="card">
           <div class="card-head" style="flex-wrap:wrap; gap:12px;">
             <button class="btn btn-sm" type="button" id="rulesFilterToggle"><svg class="icon icon-sm"><use href="#ic-filter"/></svg>Filter</button>
-            <div class="pillbar" id="rulesExtraFilters" style="display:none;">
-              <select class="mini-select" id="rulesCreatedByFilter"><option value="all">Created by: All</option></select>
-              <select class="mini-select" id="rulesDistFilter"><option value="all">Distribution: All</option></select>
-              <select class="mini-select" id="rulesAssignToFilter"><option value="all">Assign to: All</option></select>
-              <button type="button" class="icon-btn" id="rulesFilterClose" title="Close filters" aria-label="Close filters"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>
+            <div class="pillbar" id="rulesExtraFilters" style="display:none; align-items:flex-end;">
+              <div class="field"><label>Created by</label><select class="mini-select" id="rulesCreatedByFilter"><option value="all">All</option></select></div>
+              <div class="field"><label>Distribution</label><select class="mini-select" id="rulesDistFilter"><option value="all">All</option></select></div>
+              <div class="field"><label>Assign to</label>
+                <details class="assign-picker assign-picker-sm" id="rulesAssignToFilter">
+                  <summary id="rulesAssignToSummary">All</summary>
+                  <div class="assign-options" id="rulesAssignToOptions"></div>
+                </details>
+              </div>
+              <button type="button" class="icon-btn" id="rulesFilterClose" title="Close filters" aria-label="Close filters" style="margin-bottom:1px;"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button>
             </div>
           </div>
           <div class="table-wrap">
@@ -867,7 +866,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                   <div class="condition-stack" id="manualConditions">
                     <div class="condition-row"><select class="condition-field"><option value="source" selected>Source</option><option value="program">Program</option><option value="city">City</option><option value="language">Preferred language</option><option value="Working days">Working days</option><option value="Working hours">Working hours</option></select><select class="condition-op"><option value="any" selected>Any</option><option value="include">Include</option><option value="exclude">Excludes</option></select><details class="assign-picker condition-value-picker disabled"><summary class="cv-summary">All values</summary><div class="assign-options"></div></details><button class="condition-remove" type="button" aria-label="Remove condition"><svg class="icon icon-sm"><use href="#ic-x"/></svg></button></div>
                   </div>
-                  <button class="btn manual-add-condition" type="button" id="addConditionBtn"><svg class="icon icon-sm"><use href="#ic-plus"/></svg>Add condition</button>
                   <div id="manConditionsError" style="display:none; color:var(--critical); font-size:12.5px; font-weight:600; margin-top:6px;"></div>
                 </div>
                 <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All counsellors</label><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
@@ -1294,7 +1292,7 @@ function renderDashAlerts(){
 let rulesStatusVal = 'all';
 let rulesCreatedByVal = 'all';
 let rulesDistVal = 'all';
-let rulesAssignToVal = 'all';
+let rulesAssignToVals = [];
 let rulesShowDeleted = false;
 
 function renderRules(){
@@ -1306,7 +1304,7 @@ function renderRules(){
         (rulesStatusVal==='all' || (rulesStatusVal==='active' ? r.active : !r.active)) &&
         (rulesCreatedByVal==='all' || r.createdBy===rulesCreatedByVal) &&
         (rulesDistVal==='all' || r.dist===rulesDistVal) &&
-        (rulesAssignToVal==='all' || r.team.split(',').map(s=>s.trim()).includes(rulesAssignToVal)) &&
+        (rulesAssignToVals.length===0 || r.team.split(',').map(s=>s.trim()).some(n=>rulesAssignToVals.includes(n))) &&
         (r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
       );
   document.getElementById('rulesBody').innerHTML = rows.length ? rows.map(r=>{
@@ -1486,30 +1484,27 @@ function renderRulesPaused(){
 function populateRulesFilterOptions(){
   const byEl = document.getElementById('rulesCreatedByFilter');
   const distEl = document.getElementById('rulesDistFilter');
-  const assignEl = document.getElementById('rulesAssignToFilter');
-  if(!byEl || !distEl || !assignEl) return;
+  const assignOptionsEl = document.getElementById('rulesAssignToOptions');
+  if(!byEl || !distEl || !assignOptionsEl) return;
   const prevBy = byEl.value || 'all';
   const prevDist = distEl.value || 'all';
-  const prevAssign = assignEl.value || 'all';
   const live = rules.filter(r=>!r.deleted);
   const creators = [...new Set(live.map(r=>r.createdBy))].sort();
   const dists = [...new Set(live.map(r=>r.dist))].sort();
   const assignees = [...new Set(live.flatMap(r=>r.team.split(',').map(s=>s.trim())))].sort();
-  byEl.innerHTML = '<option value="all">Created by: All</option>' + creators.map(c=>`<option value="${c}">Created by: ${c}</option>`).join('');
-  distEl.innerHTML = '<option value="all">Distribution: All</option>' + dists.map(d=>`<option value="${d}">Distribution: ${d}</option>`).join('');
-  assignEl.innerHTML = '<option value="all">Assign to: All</option>' + assignees.map(a=>`<option value="${a}">Assign to: ${a}</option>`).join('');
+  byEl.innerHTML = '<option value="all">All</option>' + creators.map(c=>`<option value="${c}">${c}</option>`).join('');
+  distEl.innerHTML = '<option value="all">All</option>' + dists.map(d=>`<option value="${d}">${d}</option>`).join('');
   byEl.value = creators.includes(prevBy) ? prevBy : 'all';
   distEl.value = dists.includes(prevDist) ? prevDist : 'all';
-  assignEl.value = assignees.includes(prevAssign) ? prevAssign : 'all';
-}
 
-function updateRulesDateTime(){
-  const el = document.getElementById('rulesDateTime');
-  if(!el) return;
-  const now = new Date();
-  const datePart = now.toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'});
-  const timePart = now.toLocaleTimeString(undefined,{hour:'2-digit', minute:'2-digit'});
-  el.textContent = `${datePart} · ${timePart}`;
+  rulesAssignToVals = rulesAssignToVals.filter(v=>assignees.includes(v));
+  assignOptionsEl.innerHTML = `<label class="assign-option"><input type="checkbox" class="cv-all"${rulesAssignToVals.length===0 ? ' checked' : ''}> All</label>` +
+    assignees.map(a=>`<label class="assign-option"><input type="checkbox" value="${a}"${rulesAssignToVals.includes(a) ? ' checked' : ''}> ${a}</label>`).join('');
+  updateRulesAssignToSummary();
+}
+function updateRulesAssignToSummary(){
+  const el = document.getElementById('rulesAssignToSummary');
+  if(el) el.textContent = rulesAssignToVals.length ? rulesAssignToVals.join(', ') : 'All';
 }
 
 /* counsellors view */
@@ -1582,7 +1577,20 @@ document.getElementById('rulesFilterClose').addEventListener('click', ()=>{
 });
 document.getElementById('rulesCreatedByFilter').addEventListener('change', function(){ rulesCreatedByVal = this.value; renderRules(); });
 document.getElementById('rulesDistFilter').addEventListener('change', function(){ rulesDistVal = this.value; renderRules(); });
-document.getElementById('rulesAssignToFilter').addEventListener('change', function(){ rulesAssignToVal = this.value; renderRules(); });
+document.getElementById('rulesAssignToFilter').addEventListener('change', e=>{
+  const picker = document.getElementById('rulesAssignToFilter');
+  const all = picker.querySelector('.cv-all');
+  const boxes = [...picker.querySelectorAll('.assign-options input[type=checkbox]:not(.cv-all)')];
+  if(e.target === all){
+    if(all.checked) boxes.forEach(b=>{ b.checked = false; });
+  } else {
+    if(e.target.checked) all.checked = false;
+    if(boxes.every(b=>!b.checked)) all.checked = true;
+  }
+  rulesAssignToVals = boxes.filter(b=>b.checked).map(b=>b.value);
+  updateRulesAssignToSummary();
+  renderRules();
+});
 document.getElementById('rulesSearch').addEventListener('input', renderRules);
 
 document.getElementById('teamFilter').addEventListener('click', e=>{
@@ -1831,15 +1839,6 @@ function hideConditionsError(){
   if(el) el.style.display = 'none';
 }
 document.getElementById('manualConditions').addEventListener('change', hideConditionsError);
-document.getElementById('addConditionBtn').addEventListener('click', ()=>{
-  const join = document.createElement('span'); join.className = 'condition-join'; join.dataset.op = 'AND'; join.textContent = 'AND';
-  const row = document.createElement('div'); row.className = 'condition-row';
-  row.innerHTML = conditionRowMarkup();
-  document.getElementById('manualConditions').append(join, row);
-  refreshConditionValues(row);
-  updateManualPreview();
-  hideConditionsError();
-});
 
 let editingRuleIdx = null;
 function resetManualForm(){
@@ -2228,6 +2227,5 @@ populateRulesFilterOptions();
 renderRulesStats(); renderRulesPaused(); updateRulesPausedVisibility();
 renderRules(); renderCounsellors(); renderHistory();
 refreshRuleBadge();
-updateRulesDateTime(); setInterval(updateRulesDateTime, 30000);
 runSimulation();
 </script>
