@@ -790,6 +790,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
           </div>
           <div class="view-actions">
             <div class="header-datetime" id="rulesDateTime"></div>
+            <div class="search-box" style="width:220px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
             <button class="btn" type="button" id="rulesSettingsBtn"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
             <button class="btn" type="button" id="rulesFilterToggle"><svg class="icon"><use href="#ic-filter"/></svg>Filter</button>
             <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
@@ -811,12 +812,6 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 
         <div class="card">
           <div class="card-head" style="flex-wrap:wrap; gap:12px;">
-            <div class="pillbar" id="rulesStatusFilter">
-              <button class="pill active" data-status="all">All rules</button>
-              <button class="pill" data-status="active">Active</button>
-              <button class="pill" data-status="paused">Paused</button>
-            </div>
-            <div class="search-box" style="width:240px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
             <div class="pillbar" id="rulesExtraFilters" style="display:none;">
               <select class="mini-select" id="rulesCreatedByFilter"><option value="all">Created by: All</option></select>
               <select class="mini-select" id="rulesDistFilter"><option value="all">Distribution: All</option></select>
@@ -1390,17 +1385,17 @@ function renderRulesStats(){
   const matchesToday = live.reduce((s,r)=>s+r.matches,0);
   const deletedCount = rules.filter(r=>r.deleted).length;
   document.getElementById('rulesStatGrid').innerHTML = `
-    <div class="stat-tile">
+    <div class="stat-tile clickable${!rulesShowDeleted && rulesStatusVal==='all' ? ' tile-active' : ''}" id="rulesTotalTile" title="Click to view all rules">
       <div class="stat-top"><span class="stat-label">Total rules</span><span class="stat-icon i-accent"><svg class="icon"><use href="#ic-target"/></svg></span></div>
       <div class="stat-value tabular">${total}</div>
       <div class="stat-foot flat">Across all campuses</div>
     </div>
-    <div class="stat-tile">
+    <div class="stat-tile clickable${!rulesShowDeleted && rulesStatusVal==='active' ? ' tile-active' : ''}" id="rulesActiveTile" title="Click to view active rules">
       <div class="stat-top"><span class="stat-label">Active rules</span><span class="stat-icon i-success"><svg class="icon"><use href="#ic-check"/></svg></span></div>
       <div class="stat-value tabular">${activeCount}</div>
       <div class="stat-foot flat">Currently routing leads</div>
     </div>
-    <div class="stat-tile">
+    <div class="stat-tile clickable${!rulesShowDeleted && rulesStatusVal==='paused' ? ' tile-active' : ''}" id="rulesPausedTile" title="Click to view paused rules">
       <div class="stat-top"><span class="stat-label">Paused rules</span><span class="stat-icon i-warning"><svg class="icon"><use href="#ic-alert"/></svg></span></div>
       <div class="stat-value tabular">${pausedCount}</div>
       <div class="stat-foot down">Not routing any leads</div>
@@ -1417,10 +1412,20 @@ function renderRulesStats(){
     </div>`;
 }
 document.getElementById('rulesStatGrid').addEventListener('click', e=>{
-  if(!e.target.closest('#rulesDeletedTile')) return;
-  rulesShowDeleted = !rulesShowDeleted;
+  if(e.target.closest('#rulesDeletedTile')){
+    rulesShowDeleted = !rulesShowDeleted;
+    renderRules();
+    renderRulesStats();
+    updateRulesPausedVisibility();
+    return;
+  }
+  const statusTile = e.target.closest('#rulesTotalTile, #rulesActiveTile, #rulesPausedTile');
+  if(!statusTile) return;
+  rulesShowDeleted = false;
+  rulesStatusVal = statusTile.id === 'rulesTotalTile' ? 'all' : statusTile.id === 'rulesActiveTile' ? 'active' : 'paused';
   renderRules();
   renderRulesStats();
+  updateRulesPausedVisibility();
 });
 
 function renderRulesPaused(){
@@ -1527,13 +1532,8 @@ document.getElementById('menuBtn').addEventListener('click', ()=>document.getEle
 
 function updateRulesPausedVisibility(){
   const card = document.getElementById('rulesPausedCard');
-  if(card) card.style.display = rulesStatusVal === 'paused' ? '' : 'none';
+  if(card) card.style.display = (!rulesShowDeleted && rulesStatusVal === 'paused') ? '' : 'none';
 }
-document.getElementById('rulesStatusFilter').addEventListener('click', e=>{
-  const btn = e.target.closest('.pill'); if(!btn) return;
-  document.querySelectorAll('#rulesStatusFilter .pill').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active'); rulesStatusVal = btn.dataset.status; renderRules(); updateRulesPausedVisibility();
-});
 document.getElementById('rulesFilterToggle').addEventListener('click', ()=>{
   const extra = document.getElementById('rulesExtraFilters');
   extra.style.display = extra.style.display === 'none' ? 'flex' : 'none';
