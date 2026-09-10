@@ -869,11 +869,20 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                   <div id="manConditionsError" style="display:none; color:var(--critical); font-size:12.5px; font-weight:600; margin-top:6px;"></div>
                 </div>
                 <div class="field"><label>Assign to</label><details class="assign-picker" id="manAssignTo"><summary id="assignSummary">Select counsellors</summary><div class="assign-options"><label class="assign-option"><input type="checkbox" class="cv-all"> All counsellors</label><label class="assign-option"><input type="checkbox" value="Priya Sharma"> Priya Sharma</label><label class="assign-option"><input type="checkbox" value="Amit Sharma"> Amit Sharma</label><label class="assign-option"><input type="checkbox" value="Rahul Deshmukh"> Rahul Deshmukh</label><label class="assign-option"><input type="checkbox" value="Neha Kulkarni"> Neha Kulkarni</label><label class="assign-option"><input type="checkbox" value="Sanjay Verma"> Sanjay Verma</label><label class="assign-option"><input type="checkbox" value="Ananya Iyer"> Ananya Iyer</label><label class="assign-option"><input type="checkbox" value="Vikram Rao"> Vikram Rao</label><label class="assign-option"><input type="checkbox" value="Fatima Sheikh"> Fatima Sheikh</label><label class="assign-option"><input type="checkbox" value="Karan Mehta"> Karan Mehta</label><label class="assign-option"><input type="checkbox" value="Divya Menon"> Divya Menon</label></div></details></div>
-                <div class="field"><label>Distribution</label><select id="manDist"><option>Equal Distribution</option><option>Ratio Based</option></select></div>
+                <div class="field"><label>Distribution</label><select id="manDist"><option>Equal Distribution</option><option>Ratio Based</option><option>Load Based</option></select></div>
                 <div class="field full" id="manRatioField" style="display:none;">
                   <label>Counsellor Ratio</label>
                   <div class="ratio-block" id="manRatioList"></div>
                   <div class="ratio-total" id="manRatioTotal">Total ratio: 0</div>
+                </div>
+                <div class="field full" id="manLoadField" style="display:none;">
+                  <label>Load Based Distribution</label>
+                  <div class="card-sub" style="margin:-2px 0 6px;">Leads go to the assigned counsellor who currently has the fewest active leads.</div>
+                  <button type="button" class="btn btn-sm" id="defineLeastLoadBtn" style="align-self:flex-start;"><svg class="icon icon-sm"><use href="#ic-gear"/></svg>Define least load</button>
+                  <div id="manLoadPanel" style="display:none; margin-top:10px;">
+                    <div class="ratio-block" id="manLoadList"></div>
+                    <div class="ratio-total">The counsellor with the lowest active leads here gets the next lead.</div>
+                  </div>
                 </div>
               </div>
               <div class="manual-actions"><button class="btn btn-primary" type="button" id="manualSaveBtn"><svg class="icon"><use href="#ic-check"/></svg><span id="manualSaveBtnText">Save rule</span></button></div>
@@ -1092,6 +1101,19 @@ input[type=range]{flex:1; accent-color:var(--accent);}
         </select>
         <div class="card-sub" style="margin-top:4px;">Used for SLA timers and Working hours conditions.</div>
       </div>
+      <div class="field full">
+        <label>Working days</label>
+        <div class="pillbar" id="criteriaWorkingDays">
+          <button type="button" class="pill" data-day="Mon">Mon</button>
+          <button type="button" class="pill" data-day="Tue">Tue</button>
+          <button type="button" class="pill" data-day="Wed">Wed</button>
+          <button type="button" class="pill" data-day="Thu">Thu</button>
+          <button type="button" class="pill" data-day="Fri">Fri</button>
+          <button type="button" class="pill" data-day="Sat">Sat</button>
+          <button type="button" class="pill" data-day="Sun">Sun</button>
+        </div>
+        <div class="card-sub" style="margin-top:4px;">Days counted as working days for SLA timers and Working hours conditions.</div>
+      </div>
       <div>
         <p class="card-sub" style="margin:2px 0 2px;">Define the fields available when building rule conditions.</p>
         <div id="criteriaList" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -1169,6 +1191,7 @@ const criteriaFieldOptions = [
 ];
 let routingCriteria = ['source','program','city','language','Working days','Working hours'];
 let routingTimezone = 'Asia/Kolkata';
+let routingWorkingDays = ['Mon','Tue','Wed','Thu','Fri','Sat'];
 function conditionFieldOptionsHtml(selectedValue){
   const list = routingCriteria.length ? routingCriteria.slice() : ['source'];
   // keep an existing rule's stored field selectable even if it's since been removed from Settings,
@@ -1722,6 +1745,7 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
 });
 /* counsellor ratio (Distribution = Ratio Based) */
 let manualRatios = {};
+let manualActiveLoads = {};
 function getSelectedAssignees(){
   return [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')].filter(b=>b.checked).map(b=>b.value);
 }
@@ -1759,20 +1783,65 @@ function updateRatioPercentages(){
   });
   document.getElementById('manRatioTotal').textContent = `Total ratio: ${total}`;
 }
+function defaultActiveLoad(name){
+  const c = counsellors.find(c=>c.name===name);
+  return c ? c.active : 0;
+}
+function activeLoadFor(name){
+  return manualActiveLoads[name] !== undefined ? manualActiveLoads[name] : defaultActiveLoad(name);
+}
+function renderLoadRows(){
+  const listEl = document.getElementById('manLoadList');
+  if(!listEl) return;
+  const names = getSelectedAssignees();
+  if(!names.length){
+    listEl.innerHTML = '<div class="empty-note" style="padding:6px 0; text-align:left;">Select counsellors in Assign to above to set their active leads.</div>';
+    return;
+  }
+  listEl.innerHTML = names.map(n=>`<div class="ratio-row" data-name="${n}"><span class="ratio-name">${n}</span><input type="number" min="0" step="1" class="ratio-input mini-input load-input" value="${activeLoadFor(n)}"><span class="card-sub" style="width:auto; white-space:nowrap;">active leads</span></div>`).join('');
+}
+function updateActiveLoads(){
+  const rows = [...document.querySelectorAll('#manLoadList .ratio-row')];
+  rows.forEach(row=>{
+    const name = row.dataset.name;
+    manualActiveLoads[name] = Math.max(0, parseInt(row.querySelector('.load-input').value, 10) || 0);
+  });
+}
 function distributionPreviewText(){
   const distVal = document.getElementById('manDist').value;
-  if(distVal !== 'Ratio Based') return distVal;
-  const pct = computeRatioPercentages();
-  return pct.length ? `Ratio Based (${pct.map(p=>`${p.name} ${p.pct}%`).join(', ')})` : 'Ratio Based';
+  if(distVal === 'Ratio Based'){
+    const pct = computeRatioPercentages();
+    return pct.length ? `Ratio Based (${pct.map(p=>`${p.name} ${p.pct}%`).join(', ')})` : 'Ratio Based';
+  }
+  if(distVal === 'Load Based'){
+    const names = getSelectedAssignees();
+    if(!names.length) return 'Load Based';
+    return `Load Based (goes to least active leads — ${names.map(n=>`${n} ${activeLoadFor(n)}`).join(', ')})`;
+  }
+  return distVal;
 }
 document.getElementById('manDist').addEventListener('change', function(){
   const isRatio = this.value === 'Ratio Based';
+  const isLoad = this.value === 'Load Based';
   document.getElementById('manRatioField').style.display = isRatio ? 'block' : 'none';
+  document.getElementById('manLoadField').style.display = isLoad ? 'block' : 'none';
+  document.getElementById('manLoadPanel').style.display = 'none';
   if(isRatio) renderRatioRows();
   updateManualPreview();
 });
 document.getElementById('manRatioList').addEventListener('input', ()=>{
   updateRatioPercentages();
+  updateManualPreview();
+});
+document.getElementById('defineLeastLoadBtn').addEventListener('click', ()=>{
+  const panel = document.getElementById('manLoadPanel');
+  const willOpen = panel.style.display === 'none';
+  panel.style.display = willOpen ? 'block' : 'none';
+  if(willOpen) renderLoadRows();
+});
+document.getElementById('manLoadList').addEventListener('input', e=>{
+  if(!e.target.classList.contains('load-input')) return;
+  updateActiveLoads();
   updateManualPreview();
 });
 
@@ -1871,6 +1940,11 @@ function resetManualForm(){
   const ratioField = document.getElementById('manRatioField');
   if(ratioField) ratioField.style.display = 'none';
   manualRatios = {};
+  const loadField = document.getElementById('manLoadField');
+  if(loadField) loadField.style.display = 'none';
+  const loadPanel = document.getElementById('manLoadPanel');
+  if(loadPanel) loadPanel.style.display = 'none';
+  manualActiveLoads = {};
 
   const seg = document.getElementById('builderMode');
   if(seg){
@@ -1981,9 +2055,13 @@ function populateManualFormFromRule(r){
   updateManualPreview();
 
   const isRatio = (r.dist||'').startsWith('Ratio Based');
-  document.getElementById('manDist').value = isRatio ? 'Ratio Based' : 'Equal Distribution';
+  const isLoad = (r.dist||'').startsWith('Load Based');
+  document.getElementById('manDist').value = isRatio ? 'Ratio Based' : isLoad ? 'Load Based' : 'Equal Distribution';
   document.getElementById('manRatioField').style.display = isRatio ? 'block' : 'none';
+  document.getElementById('manLoadField').style.display = isLoad ? 'block' : 'none';
+  document.getElementById('manLoadPanel').style.display = 'none';
   if(isRatio){ manualRatios = {}; renderRatioRows(); }
+  if(isLoad){ manualActiveLoads = {}; }
 
   updateManualPreview();
 }
@@ -2040,9 +2118,15 @@ function renderCriteriaList(){
   [...listEl.querySelectorAll('.criteria-field-select')].forEach((sel, i)=>{ sel.value = routingCriteria[i]; });
 }
 
+function renderCriteriaWorkingDays(){
+  document.querySelectorAll('#criteriaWorkingDays .pill').forEach(btn=>{
+    btn.classList.toggle('active', routingWorkingDays.includes(btn.dataset.day));
+  });
+}
 window.openCriteriaModal = function(){
   renderCriteriaList();
   document.getElementById('settingsTimezoneSelect').value = routingTimezone;
+  renderCriteriaWorkingDays();
   document.getElementById('criteriaModal').style.display = 'flex';
 };
 window.closeCriteriaModal = function(){
@@ -2054,6 +2138,16 @@ document.getElementById('criteriaModal').addEventListener('click', e=>{
 });
 document.getElementById('settingsTimezoneSelect').addEventListener('change', function(){
   routingTimezone = this.value;
+});
+document.getElementById('criteriaWorkingDays').addEventListener('click', e=>{
+  const btn = e.target.closest('.pill');
+  if(!btn) return;
+  const day = btn.dataset.day;
+  const isActive = routingWorkingDays.includes(day);
+  if(isActive && routingWorkingDays.length<=1) return; // keep at least one working day
+  if(isActive) routingWorkingDays = routingWorkingDays.filter(d=>d!==day);
+  else routingWorkingDays.push(day);
+  renderCriteriaWorkingDays();
 });
 document.getElementById('addCriteriaBtn').addEventListener('click', ()=>{
   routingCriteria.push('source');
