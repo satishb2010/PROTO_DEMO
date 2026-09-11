@@ -512,10 +512,17 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .ratio-input{width:64px; text-align:center;}
 .ratio-pct{width:44px; text-align:right; font-weight:700; color:var(--accent); font-family:var(--font-mono); font-size:12.6px;}
 .ratio-total{font-size:11.6px; color:var(--ink-faint); margin-top:2px;}
-.load-row-grid{display:grid; grid-template-columns:1fr auto; column-gap:10px; row-gap:6px; align-items:center; margin-bottom:8px;}
-.load-count-cell{display:flex; align-items:center; gap:10px; justify-self:end;}
-.load-status-label{white-space:nowrap;}
-.load-status-picker{justify-self:end; min-width:200px;}
+.load-table{margin-top:2px; width:100%; table-layout:fixed;}
+.load-table th, .load-table td{padding:7px 8px;}
+.load-table thead th:first-child, .load-table tbody td:first-child{padding-left:2px;}
+.load-table thead th:last-child, .load-table tbody td:last-child{padding-right:2px;}
+.load-table th:nth-child(1), .load-table td:nth-child(1){width:34%;}
+.load-table th:nth-child(2), .load-table td:nth-child(2){width:44%;}
+.load-table th:nth-child(3), .load-table td:nth-child(3){width:22%;}
+.load-table .load-name-cell{font-weight:600; color:var(--ink); font-size:12.6px; white-space:normal;}
+.load-table .load-status-picker{width:100%; min-width:0;}
+.load-table .load-status-picker summary{white-space:normal; word-break:break-word;}
+.load-table .load-input{width:100%; min-width:48px; text-align:center;}
 .manual-priority{display:flex; align-items:center; gap:10px;}
 .manual-priority input[type=range]{min-width:0;}
 .manual-priority-value{font-family:var(--font-mono); font-size:12px; font-weight:700; white-space:nowrap;}
@@ -884,7 +891,12 @@ input[type=range]{flex:1; accent-color:var(--accent);}
                   <div class="card-sub" style="margin:-2px 0 6px;">Leads go to the assigned counsellor who currently has the fewest active leads.</div>
                   <button type="button" class="btn btn-sm" id="defineLeastLoadBtn" style="align-self:flex-start;"><svg class="icon icon-sm"><use href="#ic-gear"/></svg>Define least load</button>
                   <div id="manLoadPanel" style="display:none; margin-top:10px;">
-                    <div class="ratio-block" id="manLoadList"></div>
+                    <div class="table-wrap">
+                      <table class="load-table">
+                        <thead><tr><th>Counsellor</th><th>Status</th><th>Active leads</th></tr></thead>
+                        <tbody id="manLoadList"></tbody>
+                      </table>
+                    </div>
                     <div class="ratio-total">The counsellor with the lowest active leads here gets the next lead.</div>
                   </div>
                 </div>
@@ -1820,20 +1832,20 @@ function renderLoadRows(){
   if(!listEl) return;
   const names = getSelectedAssignees();
   if(!names.length){
-    listEl.innerHTML = '<div class="empty-note" style="padding:6px 0; text-align:left;">Select counsellors in Assign to above to set their active leads.</div>';
+    listEl.innerHTML = '<tr><td colspan="3" class="empty-note" style="padding:10px 2px; text-align:left;">Select counsellors in Assign to above to set their active leads.</td></tr>';
     return;
   }
-  listEl.innerHTML = names.map(n=>`<div class="ratio-row load-row-grid" data-name="${n}"><span class="ratio-name">${n}</span><div class="load-count-cell"><input type="number" min="0" step="1" class="ratio-input mini-input load-input" value="${activeLoadFor(n)}"><span class="card-sub" style="width:auto; white-space:nowrap;">active leads</span></div><span class="card-sub load-status-label">Counts leads in status:</span><details class="assign-picker assign-picker-sm load-status-picker"><summary><span class="load-status-summary">${loadStatusSummaryText(n)}</span></summary><div class="assign-options">${LOAD_STATUSES.map(s=>`<label class="assign-option"><input type="checkbox" value="${s}"${loadStatusesFor(n).includes(s) ? ' checked' : ''}> ${s}</label>`).join('')}</div></details></div>`).join('');
+  listEl.innerHTML = names.map(n=>`<tr class="load-row" data-name="${n}"><td class="load-name-cell">${n}</td><td><details class="assign-picker assign-picker-sm load-status-picker"><summary><span class="load-status-summary">${loadStatusSummaryText(n)}</span></summary><div class="assign-options">${LOAD_STATUSES.map(s=>`<label class="assign-option"><input type="checkbox" value="${s}"${loadStatusesFor(n).includes(s) ? ' checked' : ''}> ${s}</label>`).join('')}</div></details></td><td><input type="number" min="0" step="1" class="ratio-input mini-input load-input" value="${activeLoadFor(n)}"></td></tr>`).join('');
 }
 function updateActiveLoads(){
-  const rows = [...document.querySelectorAll('#manLoadList .ratio-row')];
+  const rows = [...document.querySelectorAll('#manLoadList .load-row')];
   rows.forEach(row=>{
     const name = row.dataset.name;
     manualActiveLoads[name] = Math.max(0, parseInt(row.querySelector('.load-input').value, 10) || 0);
   });
 }
 function updateLoadStatuses(){
-  const rows = [...document.querySelectorAll('#manLoadList .ratio-row')];
+  const rows = [...document.querySelectorAll('#manLoadList .load-row')];
   rows.forEach(row=>{
     const name = row.dataset.name;
     const boxes = [...row.querySelectorAll('.load-status-picker .assign-options input[type=checkbox]')];
@@ -1880,7 +1892,7 @@ document.getElementById('manLoadList').addEventListener('input', e=>{
 document.getElementById('manLoadList').addEventListener('change', e=>{
   if(!e.target.closest('.load-status-picker')) return;
   updateLoadStatuses();
-  const row = e.target.closest('.ratio-row');
+  const row = e.target.closest('.load-row');
   const name = row.dataset.name;
   row.querySelector('.load-status-summary').textContent = loadStatusSummaryText(name);
   updateManualPreview();
