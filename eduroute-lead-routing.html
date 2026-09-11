@@ -508,10 +508,13 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .manual-add-condition{margin-top:8px; padding:5px 9px; font-size:11.5px;}
 .ratio-block{display:flex; flex-direction:column; gap:7px;}
 .ratio-row{display:flex; align-items:center; gap:10px;}
+.ratio-row.load-row{flex-wrap:wrap;}
 .ratio-name{flex:1; min-width:0; font-size:12.6px; font-weight:600; color:var(--ink);}
 .ratio-input{width:64px; text-align:center;}
 .ratio-pct{width:44px; text-align:right; font-weight:700; color:var(--accent); font-family:var(--font-mono); font-size:12.6px;}
 .ratio-total{font-size:11.6px; color:var(--ink-faint); margin-top:2px;}
+.load-status-line{flex-basis:100%; display:flex; align-items:center; gap:8px; margin-top:2px;}
+.load-status-picker{min-width:200px;}
 .manual-priority{display:flex; align-items:center; gap:10px;}
 .manual-priority input[type=range]{min-width:0;}
 .manual-priority-value{font-family:var(--font-mono); font-size:12px; font-weight:700; white-space:nowrap;}
@@ -684,7 +687,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
           </div>
           <div class="view-actions">
             <button class="btn"><svg class="icon"><use href="#ic-export"/></svg>Export report</button>
-            <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-spark"/></svg>Create AI rule</button>
+            <button class="btn btn-primary" id="createAiRuleBtn" onclick="goTo('builder')"><svg class="icon"><use href="#ic-spark"/></svg>Create AI rule</button>
           </div>
         </div>
 
@@ -787,7 +790,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
           <div class="view-actions">
             <div class="search-box" style="width:220px;"><svg class="icon"><use href="#ic-search"/></svg><input type="text" id="rulesSearch" placeholder="Search rules…"></div>
             <button class="btn" type="button" id="rulesSettingsBtn"><svg class="icon"><use href="#ic-gear"/></svg>Settings</button>
-            <button class="btn btn-primary" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
+            <button class="btn btn-primary" type="button" id="newRuleBtn" onclick="goTo('builder')"><svg class="icon"><use href="#ic-plus"/></svg>New rule</button>
           </div>
         </div>
 
@@ -1192,6 +1195,16 @@ const criteriaFieldOptions = [
 let routingCriteria = ['source','program','city','language','Working days','Working hours'];
 let routingTimezone = 'Asia/Kolkata';
 let routingWorkingDays = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+let criteriaConfirmed = false;
+function updateNewRuleButtonState(){
+  const disabled = !criteriaConfirmed || !routingCriteria.length;
+  const tip = 'Set your routing criteria in Settings before creating a rule.';
+  [document.getElementById('newRuleBtn'), document.getElementById('createAiRuleBtn')].forEach(btn=>{
+    if(!btn) return;
+    btn.disabled = disabled;
+    btn.title = disabled ? tip : '';
+  });
+}
 function conditionFieldOptionsHtml(selectedValue){
   const list = routingCriteria.length ? routingCriteria.slice() : ['source'];
   // keep an existing rule's stored field selectable even if it's since been removed from Settings,
@@ -1746,6 +1759,7 @@ document.getElementById('manualConditions').addEventListener('change', e=>{
 /* counsellor ratio (Distribution = Ratio Based) */
 let manualRatios = {};
 let manualActiveLoads = {};
+let manualLoadStatuses = {};
 function getSelectedAssignees(){
   return [...document.querySelectorAll('#manAssignTo .assign-options input[type=checkbox]:not(.cv-all)')].filter(b=>b.checked).map(b=>b.value);
 }
@@ -1790,6 +1804,17 @@ function defaultActiveLoad(name){
 function activeLoadFor(name){
   return manualActiveLoads[name] !== undefined ? manualActiveLoads[name] : defaultActiveLoad(name);
 }
+const LOAD_STATUSES = ['New','Callback','Walk-in','Enrolled'];
+function defaultLoadStatuses(){ return ['New','Callback','Walk-in']; }
+function loadStatusesFor(name){
+  return manualLoadStatuses[name] !== undefined ? manualLoadStatuses[name] : defaultLoadStatuses();
+}
+function loadStatusSummaryText(name){
+  const sel = loadStatusesFor(name);
+  if(!sel.length) return 'No status selected';
+  if(sel.length === LOAD_STATUSES.length) return 'All statuses';
+  return sel.join(', ');
+}
 function renderLoadRows(){
   const listEl = document.getElementById('manLoadList');
   if(!listEl) return;
@@ -1798,13 +1823,21 @@ function renderLoadRows(){
     listEl.innerHTML = '<div class="empty-note" style="padding:6px 0; text-align:left;">Select counsellors in Assign to above to set their active leads.</div>';
     return;
   }
-  listEl.innerHTML = names.map(n=>`<div class="ratio-row" data-name="${n}"><span class="ratio-name">${n}</span><input type="number" min="0" step="1" class="ratio-input mini-input load-input" value="${activeLoadFor(n)}"><span class="card-sub" style="width:auto; white-space:nowrap;">active leads</span></div>`).join('');
+  listEl.innerHTML = names.map(n=>`<div class="ratio-row load-row" data-name="${n}"><span class="ratio-name">${n}</span><input type="number" min="0" step="1" class="ratio-input mini-input load-input" value="${activeLoadFor(n)}"><span class="card-sub" style="width:auto; white-space:nowrap;">active leads</span><div class="load-status-line"><span class="card-sub" style="width:auto; white-space:nowrap;">Counts leads in status:</span><details class="assign-picker assign-picker-sm load-status-picker"><summary><span class="load-status-summary">${loadStatusSummaryText(n)}</span></summary><div class="assign-options">${LOAD_STATUSES.map(s=>`<label class="assign-option"><input type="checkbox" value="${s}"${loadStatusesFor(n).includes(s) ? ' checked' : ''}> ${s}</label>`).join('')}</div></details></div></div>`).join('');
 }
 function updateActiveLoads(){
   const rows = [...document.querySelectorAll('#manLoadList .ratio-row')];
   rows.forEach(row=>{
     const name = row.dataset.name;
     manualActiveLoads[name] = Math.max(0, parseInt(row.querySelector('.load-input').value, 10) || 0);
+  });
+}
+function updateLoadStatuses(){
+  const rows = [...document.querySelectorAll('#manLoadList .ratio-row')];
+  rows.forEach(row=>{
+    const name = row.dataset.name;
+    const boxes = [...row.querySelectorAll('.load-status-picker .assign-options input[type=checkbox]')];
+    manualLoadStatuses[name] = boxes.filter(b=>b.checked).map(b=>b.value);
   });
 }
 function distributionPreviewText(){
@@ -1842,6 +1875,14 @@ document.getElementById('defineLeastLoadBtn').addEventListener('click', ()=>{
 document.getElementById('manLoadList').addEventListener('input', e=>{
   if(!e.target.classList.contains('load-input')) return;
   updateActiveLoads();
+  updateManualPreview();
+});
+document.getElementById('manLoadList').addEventListener('change', e=>{
+  if(!e.target.closest('.load-status-picker')) return;
+  updateLoadStatuses();
+  const row = e.target.closest('.ratio-row');
+  const name = row.dataset.name;
+  row.querySelector('.load-status-summary').textContent = loadStatusSummaryText(name);
   updateManualPreview();
 });
 
@@ -1945,6 +1986,7 @@ function resetManualForm(){
   const loadPanel = document.getElementById('manLoadPanel');
   if(loadPanel) loadPanel.style.display = 'none';
   manualActiveLoads = {};
+  manualLoadStatuses = {};
 
   const seg = document.getElementById('builderMode');
   if(seg){
@@ -2061,7 +2103,7 @@ function populateManualFormFromRule(r){
   document.getElementById('manLoadField').style.display = isLoad ? 'block' : 'none';
   document.getElementById('manLoadPanel').style.display = 'none';
   if(isRatio){ manualRatios = {}; renderRatioRows(); }
-  if(isLoad){ manualActiveLoads = {}; }
+  if(isLoad){ manualActiveLoads = {}; manualLoadStatuses = {}; }
 
   updateManualPreview();
 }
@@ -2166,8 +2208,11 @@ document.getElementById('criteriaList').addEventListener('change', e=>{
   routingCriteria[parseInt(row.dataset.idx,10)] = e.target.value;
 });
 window.saveCriteriaSettings = function(){
+  criteriaConfirmed = routingCriteria.length > 0;
+  updateNewRuleButtonState();
   closeCriteriaModal();
 };
+updateNewRuleButtonState();
 
 document.getElementById('manualSaveBtn').addEventListener('click', ()=>{
   const nameEl = document.getElementById('manRuleName');
